@@ -72,7 +72,15 @@ ICMS_TIPOS_TRIBUTACAO = (
     ("300", "Imune"),
     ("400", "Não tributada pelo Simples Nacional"),
     ("500", "ICMS cobrado anteriormente por substituição tributária (substituído) ou por antecipação"),
-    ("900", "Tributação ICMS pelo Simples Nacional")
+    ("900", "Tributação ICMS pelo Simples Nacional"),
+    (
+        "ST",
+        (
+            "Grupo de informação do ICMS ST devido para a UF de destino, nas"
+            " operações interestaduais de produtos que tiveram retenção antecipada de"
+            " ICMS por ST na UF do remetente. Repasse via Substituto Tributário."
+        ),
+    ),
 )
 
 ICMS_ORIGENS = (
@@ -626,4 +634,5 @@ CODIGOS_ESTADOS = {
     "GO": "52",
     "DF": "53",
     "AN": "91",
+    "EX": "99",
 }

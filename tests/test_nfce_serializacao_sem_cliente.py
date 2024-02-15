@@ -121,7 +121,7 @@ class SerializacaoNFeTestCase(unittest.TestCase):
             cofins_valor_base_calculo=Decimal("0.00"),
             cofins_aliquota_percentual=Decimal("0.00"),
             cofins_valor=Decimal("0.00"),
-            valor_tributos_aprox="1.01",
+            valor_tributos_aprox=Decimal("1.01"),
             informacoes_adicionais="Informações adicionais",
         )
 
@@ -329,12 +329,12 @@ class SerializacaoNFeTestCase(unittest.TestCase):
         self.assertEqual(CFOP, "5102")
         self.assertEqual(uCom, "UN")
         self.assertEqual(qCom, "12")
-        self.assertEqual(vUnCom, "9.7500000000")
+        self.assertEqual(vUnCom, "9.75")
         self.assertEqual(vProd, "117.00")
         self.assertEqual(cEANTrib, "SEM GTIN")
         self.assertEqual(uTrib, "UN")
         self.assertEqual(qTrib, "12")
-        self.assertEqual(vUnTrib, "9.7500000000")
+        self.assertEqual(vUnTrib, "9.75")
         self.assertEqual(indTot, "1")
 
         # Impostos

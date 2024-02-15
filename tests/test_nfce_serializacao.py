@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 # *-* encoding: utf8 *-*
 
+import datetime
 import unittest
+from decimal import Decimal
 
 from pynfe.entidades.cliente import Cliente
 from pynfe.entidades.emitente import Emitente
-from pynfe.entidades.notafiscal import NotaFiscal
 from pynfe.entidades.fonte_dados import _fonte_dados
-from pynfe.processamento.serializacao import SerializacaoXML
+from pynfe.entidades.notafiscal import NotaFiscal
 from pynfe.processamento.assinatura import AssinaturaA1
+from pynfe.processamento.serializacao import SerializacaoXML
 from pynfe.processamento.validacao import Validacao
 from pynfe.utils.flags import (
     CODIGO_BRASIL,
@@ -18,8 +20,6 @@ from pynfe.utils.flags import (
     XSD_NFE,
     XSD_NFE_PROCESSADA,
 )
-from decimal import Decimal
-import datetime
 
 
 class SerializacaoNFeTestCase(unittest.TestCase):
@@ -138,7 +138,7 @@ class SerializacaoNFeTestCase(unittest.TestCase):
             cofins_valor_base_calculo=Decimal("0.00"),
             cofins_aliquota_percentual=Decimal("0.00"),
             cofins_valor=Decimal("0.00"),
-            valor_tributos_aprox="1.01",
+            valor_tributos_aprox=Decimal("1.01"),
             informacoes_adicionais="Informações adicionais",
         )
 
@@ -382,12 +382,12 @@ class SerializacaoNFeTestCase(unittest.TestCase):
         self.assertEqual(CFOP, "5102")
         self.assertEqual(uCom, "UN")
         self.assertEqual(qCom, "12")
-        self.assertEqual(vUnCom, "9.7500000000")
+        self.assertEqual(vUnCom, "9.75")
         self.assertEqual(vProd, "117.00")
         self.assertEqual(cEANTrib, "SEM GTIN")
         self.assertEqual(uTrib, "UN")
         self.assertEqual(qTrib, "12")
-        self.assertEqual(vUnTrib, "9.7500000000")
+        self.assertEqual(vUnTrib, "9.75")
         self.assertEqual(indTot, "1")
 
         # Impostos
@@ -529,6 +529,34 @@ class SerializacaoNFeTestCase(unittest.TestCase):
 
         # Testa a validação do XML com os schemas XSD
         self.validacao_com_xsd_do_xml_gerado_sem_processar()
+
+    def test_codigo_numerico_aleatorio(self):
+        # Preenche as classes do pynfe
+        self.emitente = self.preenche_emitente()
+        self.cliente = self.preenche_destinatario()
+        self.preenche_notafiscal_produto()
+
+        # Serializa e assina o XML
+        self.xml = self.serializa_nfe()
+        chave_nfce = self.xml[0].attrib["Id"]
+        antigo_codigo = self.notafiscal.codigo_numerico_aleatorio
+
+        # Gera novamente a nota fiscal e serializa
+        self.preenche_notafiscal_produto()
+        self.xml = self.serializa_nfe()
+
+        self.assertNotEqual(antigo_codigo, self.notafiscal.codigo_numerico_aleatorio)
+        self.assertNotEqual(chave_nfce, self.xml[0].attrib["Id"])
+
+        # Gera novamente a nota fiscal atribuindo um código aleatório.
+        # E serializa
+        self.preenche_notafiscal_produto()
+        self.notafiscal.codigo_numerico_aleatorio = antigo_codigo
+        self.xml = self.serializa_nfe()
+
+        # Verifica se a chave e codigo se mantiveram
+        self.assertEqual(antigo_codigo, self.notafiscal.codigo_numerico_aleatorio)
+        self.assertEqual(chave_nfce, self.xml[0].attrib["Id"])
 
 
 if __name__ == "__main__":

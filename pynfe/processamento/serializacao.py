@@ -1,26 +1,27 @@
 # -*- coding: utf-8 -*-
-from pynfe.entidades import NotaFiscal, Manifesto
+import base64
+import hashlib
+import re
+from datetime import datetime
+
+from pynfe.entidades import Manifesto, NotaFiscal
 from pynfe.utils import (
     etree,
-    so_numeros,
+    obter_codigo_por_municipio,
     obter_municipio_por_codigo,
     obter_pais_por_codigo,
-    obter_codigo_por_municipio,
+    so_numeros,
 )
 from pynfe.utils.flags import (
     CODIGOS_ESTADOS,
-    VERSAO_PADRAO,
-    VERSAO_MDFE,
-    NAMESPACE_NFE,
     NAMESPACE_MDFE,
+    NAMESPACE_NFE,
     NAMESPACE_SIG,
+    VERSAO_MDFE,
+    VERSAO_PADRAO,
     VERSAO_QRCODE,
 )
-from pynfe.utils.webservices import NFCE, MDFE
-import base64
-import hashlib
-from datetime import datetime
-import re
+from pynfe.utils.webservices import MDFE, NFCE
 
 
 class Serializacao(object):
@@ -315,7 +316,8 @@ class SerializacaoXML(Serializacao):
         Código Especificador da Substituição Tributária – CEST,
         que estabelece a sistemática de uniformização
         e identificação das mercadorias e bens passíveis de
-        sujeição aos regimes de substituição tributária e de antecipação de recolhimento do ICMS.
+        sujeição aos regimes de substituição tributária e de
+        antecipação de recolhimento do ICMS.
         """
         if produto_servico.cest:
             etree.SubElement(prod, 'CEST').text = produto_servico.cest
@@ -371,6 +373,10 @@ class SerializacaoXML(Serializacao):
         """
         etree.SubElement(prod, "indTot").text = str(produto_servico.ind_total)
 
+        # DI - Declaração de Importação
+        self._serializar_declaracao_importacao(
+            produto_servico=produto_servico, tag_raiz=prod, retorna_string=False)
+
         """ Informação de interesse do emissor para controle do B2B.(v2.0) """
         # Número do Pedido de Compra. Tam 1-15
         if produto_servico.numero_pedido:
@@ -387,23 +393,34 @@ class SerializacaoXML(Serializacao):
         # Combustível
         if produto_servico.cProdANP:
             combustivel = etree.SubElement(prod, "comb")
-            etree.SubElement(combustivel, "cProdANP").text = str(
-                produto_servico.cProdANP
-            )
+            etree.SubElement(combustivel, "cProdANP").text = str(produto_servico.cProdANP)
             etree.SubElement(combustivel, "descANP").text = str(produto_servico.descANP)
-            etree.SubElement(combustivel, "pGLP").text = "{:.4f}".format(
-                produto_servico.pGLP or 0
-            )
-            etree.SubElement(combustivel, "pGNn").text = "{:.4f}".format(
-                produto_servico.pGNn or 0
-            )
-            etree.SubElement(combustivel, "pGNi").text = "{:.4f}".format(
-                produto_servico.pGNi or 0
-            )
-            etree.SubElement(combustivel, "vPart").text = "{:.2f}".format(
-                produto_servico.vPart or 0
-            )
+            if produto_servico.pGLP:
+                etree.SubElement(combustivel, "pGLP").text = "{:.4f}".format(produto_servico.pGLP or 0)
+            if produto_servico.pGNn:
+                etree.SubElement(combustivel, "pGNn").text = "{:.4f}".format(produto_servico.pGNn or 0)
+            if produto_servico.pGNi:
+                etree.SubElement(combustivel, "pGNi").text = "{:.4f}".format(produto_servico.pGNi or 0)
+            if produto_servico.vPart:
+                etree.SubElement(combustivel, "vPart").text = "{:.2f}".format(produto_servico.vPart or 0)
+            if produto_servico.comb_codif:
+                etree.SubElement(combustivel, "CODIF").text = produto_servico.comb_codif
+            if produto_servico.comb_q_temp:
+                etree.SubElement(combustivel, "qTemp").text = produto_servico.comb_q_temp
             etree.SubElement(combustivel, "UFCons").text = str(produto_servico.UFCons)
+
+            # encerrantes
+            if produto_servico.comb_n_bico:
+                encerrante = etree.SubElement(combustivel, "encerrante")
+                etree.SubElement(encerrante, "nBico").text = str(produto_servico.comb_n_bico)
+                if produto_servico.comb_n_bomba:
+                    etree.SubElement(encerrante, "nBomba").text = str(produto_servico.comb_n_bomba)
+                etree.SubElement(encerrante, "nTanque").text = str(produto_servico.comb_n_tanque)
+                etree.SubElement(encerrante, "vEncIni").text = "{:.3f}".format(produto_servico.comb_v_enc_ini)
+                etree.SubElement(encerrante, "vEncFin").text = "{:.3f}".format(produto_servico.comb_v_enc_fin)
+
+            if produto_servico.comb_p_bio:
+                etree.SubElement(combustivel, "pBio").text = "{:.4f}".format(produto_servico.comb_p_bio or 0)
 
         # Imposto
         imposto = etree.SubElement(raiz, "imposto")
@@ -424,6 +441,14 @@ class SerializacaoXML(Serializacao):
             produto_servico=produto_servico, tag_raiz=imposto, retorna_string=False
         )
 
+        # Imposto de Importação II
+        self._serializar_imposto_importacao(
+            produto_servico=produto_servico,
+            modelo=modelo,
+            tag_raiz=imposto,
+            retorna_string=False,
+        )
+
         # PIS
         self._serializar_imposto_pis(
             produto_servico=produto_servico,
@@ -434,14 +459,6 @@ class SerializacaoXML(Serializacao):
 
         # COFINS
         self._serializar_imposto_cofins(
-            produto_servico=produto_servico,
-            modelo=modelo,
-            tag_raiz=imposto,
-            retorna_string=False,
-        )
-
-        # Imposto de Importação II
-        self._serializar_imposto_importacao(
             produto_servico=produto_servico,
             modelo=modelo,
             tag_raiz=imposto,
@@ -500,6 +517,16 @@ class SerializacaoXML(Serializacao):
                 etree.SubElement(icms_item, "vFCP").text = "{:.2f}".format(
                     produto_servico.fcp_valor or 0
                 )  # Valor Fundo Combate a Pobreza
+
+        # 02=Tributação monofásica própria sobre combustíveis
+        elif produto_servico.icms_modalidade == "02":
+            icms_item = etree.SubElement(icms, "ICMS" + produto_servico.icms_modalidade)
+            etree.SubElement(icms_item, "orig").text = str(produto_servico.icms_origem)
+            etree.SubElement(icms_item, "CST").text = produto_servico.icms_modalidade
+
+            etree.SubElement(icms_item, "qBCMono").text = "{:.4f}".format(produto_servico.icms_q_bc_mono or 0)
+            etree.SubElement(icms_item, "adRemICMS").text = "{:.4f}".format(produto_servico.icms_ad_rem_icms or 0)
+            etree.SubElement(icms_item, "vICMSMono").text = "{:.2f}".format(produto_servico.icms_v_icms_mono or 0)
 
         # 10=Tributada e com cobrança do ICMS por substituição tributária
         elif produto_servico.icms_modalidade == "10":
@@ -564,6 +591,24 @@ class SerializacaoXML(Serializacao):
                 etree.SubElement(icms_item, "vFCPST").text = "{:.2f}".format(
                     produto_servico.fcp_st_valor or 0
                 )
+
+
+        # 15=Tributação monofásica própria e com responsabilidade pela retenção sobre combustíveis
+        elif produto_servico.icms_modalidade == "15":
+            icms_item = etree.SubElement(icms, "ICMS" + produto_servico.icms_modalidade)
+            etree.SubElement(icms_item, "orig").text = str(produto_servico.icms_origem)
+            etree.SubElement(icms_item, "CST").text = produto_servico.icms_modalidade
+
+            etree.SubElement(icms_item, "qBCMono").text = "{:.4f}".format(produto_servico.icms_q_bc_mono or 0)
+            etree.SubElement(icms_item, "adRemICMS").text = "{:.4f}".format(produto_servico.icms_ad_rem_icms or 0)
+            etree.SubElement(icms_item, "vICMSMono").text = "{:.2f}".format(produto_servico.icms_v_icms_mono or 0)
+            etree.SubElement(icms_item, "qBCMonoReten").text = "{:.4f}".format(produto_servico.icms_q_bc_mono_reten or 0)
+            etree.SubElement(icms_item, "adRemICMSReten").text = "{:.4f}".format(produto_servico.icms_ad_rem_icms_reten or 0)
+            etree.SubElement(icms_item, "vICMSMonoReten").text = "{:.2f}".format(produto_servico.icms_v_icms_mono_reten or 0)
+            if produto_servico.icms_p_red_ad_rem:
+                etree.SubElement(icms_item, "pRedAdRem").text = "{:.2f}".format(produto_servico.icms_p_red_ad_rem or 0)
+                etree.SubElement(icms_item, "motRedAdRem").text = str(produto_servico.icms_mot_red_ad_rem)
+
 
         # 20=Com redução de base de cálculo
         elif produto_servico.icms_modalidade == "20":
@@ -695,6 +740,21 @@ class SerializacaoXML(Serializacao):
                     produto_servico.fcp_valor or 0
                 )  # Valor Fundo Combate a Pobreza
 
+
+        # 53=Tributação monofásica sobre combustíveis com recolhimento diferido
+        elif produto_servico.icms_modalidade == "53":
+            icms_item = etree.SubElement(icms, "ICMS" + produto_servico.icms_modalidade)
+            etree.SubElement(icms_item, "orig").text = str(produto_servico.icms_origem)
+            etree.SubElement(icms_item, "CST").text = produto_servico.icms_modalidade
+
+            etree.SubElement(icms_item, "qBCMono").text = "{:.4f}".format(produto_servico.icms_q_bc_mono or 0)
+            etree.SubElement(icms_item, "adRemICMS").text = "{:.4f}".format(produto_servico.icms_ad_rem_icms or 0)
+            etree.SubElement(icms_item, "vICMSMonoOp").text = "{:.2f}".format(produto_servico.icms_v_icms_mono_op or 0)
+            etree.SubElement(icms_item, "pDif").text = "{:.4f}".format(produto_servico.icms_p_dif  or 0)
+            etree.SubElement(icms_item, "vICMSMonoDif").text = "{:.4f}".format(produto_servico.icms_v_icms_mono_dif or 0)
+            etree.SubElement(icms_item, "vICMSMono").text = "{:.2f}".format(produto_servico.icms_v_icms_mono or 0)
+
+
         # 60=ICMS cobrado anteriormente por substituição tributária
         elif produto_servico.icms_modalidade in ["60", "60_ST"]:
             icms_item = etree.SubElement(icms, "ICMS" + produto_servico.icms_modalidade)
@@ -720,6 +780,21 @@ class SerializacaoXML(Serializacao):
                 etree.SubElement(icms_item, "vFCPSTRet").text = "{:.2f}".format(
                     produto_servico.fcp_st_valor or 0
                 )
+        
+        # 61=Tributação monofásica sobre combustíveis cobrada anteriormente
+        elif produto_servico.icms_modalidade == "61":
+            icms_item = etree.SubElement(icms, "ICMS" + produto_servico.icms_modalidade)
+            etree.SubElement(icms_item, "orig").text = str(produto_servico.icms_origem)
+            etree.SubElement(icms_item, "CST").text = "61"
+            etree.SubElement(icms_item, "qBCMonoRet").text = "{:.4f}".format(
+                produto_servico.icms_q_bc_mono_ret or 0
+            )
+            etree.SubElement(icms_item, "adRemICMSRet").text = "{:.4f}".format(
+                produto_servico.icms_ad_rem_icms_ret or 0
+            )
+            etree.SubElement(icms_item, "vICMSMonoRet").text = "{:.2f}".format(
+                produto_servico.icms_v_icms_mono_ret or 0
+            )
 
             if produto_servico.icms_reducao_base_calculo_efetiva:
                 etree.SubElement(
@@ -1084,6 +1159,26 @@ class SerializacaoXML(Serializacao):
             etree.SubElement(
                 ipint, "CST"
             ).text = produto_servico.ipi_codigo_enquadramento
+        else:
+            if (produto_servico.ipi_valor_base_calculo > 0) and\
+               (produto_servico.ipi_aliquota > 0) and\
+               (produto_servico.ipi_valor_ipi > 0):
+                ipi = etree.SubElement(tag_raiz, 'IPI')
+
+                # Preenchimento conforme Atos Normativos editados pela Receita Federal
+                # (Observação 2)
+                etree.SubElement(ipi, 'cEnq').text = produto_servico.ipi_classe_enquadramento
+                if produto_servico.ipi_classe_enquadramento == '':
+                    etree.SubElement(ipi, 'cEnq').text = '999'
+
+                ipi_item = etree.SubElement(ipi, 'IPITrib')
+                etree.SubElement(ipi_item, 'CST').text = produto_servico.ipi_codigo_enquadramento
+                etree.SubElement(ipi_item, 'vBC').text = '{:.2f}'.format(
+                    produto_servico.ipi_valor_base_calculo or 0)
+                etree.SubElement(ipi_item, 'pIPI').text = '{:.2f}'.format(
+                    produto_servico.ipi_aliquota or 0)
+                etree.SubElement(ipi_item, 'vIPI').text = '{:.2f}'.format(
+                    produto_servico.ipi_valor_ipi or 0)
 
     def _serializar_imposto_pis(
             self, produto_servico, modelo, tag_raiz="imposto", retorna_string=True
@@ -1251,6 +1346,54 @@ class SerializacaoXML(Serializacao):
             etree.SubElement(ii, "vIOF").text = "{:.2f}".format(
                 produto_servico.imposto_importacao_valor_iof
             )
+
+    def _serializar_declaracao_importacao(
+            self, produto_servico, tag_raiz='prod', retorna_string=True
+    ):
+        # DI de 0-100
+        if produto_servico.declaracoes_importacao and\
+           len(produto_servico.declaracoes_importacao) > 0:
+            for item_di in produto_servico.declaracoes_importacao:
+                di = etree.SubElement(tag_raiz, 'DI')
+                # Número do Documento de Importação (DI, DSI, DIRE, ...)
+                etree.SubElement(di, 'nDI').text = str(item_di.numero_di_dsi_da)
+                # Data de Registro do documento
+                etree.SubElement(di, 'dDI').text = item_di.data_registro.strftime('%Y-%m-%d')
+                # Local de desembaraço
+                etree.SubElement(di, 'xLocDesemb').text = str(item_di.desembaraco_aduaneiro_local)
+                # UF onde ocorreu o Desembaraço Aduaneiro
+                etree.SubElement(di, 'UFDesemb').text = str(item_di.desembaraco_aduaneiro_uf)
+                # Data do Desembaraço Aduaneiro
+                etree.SubElement(di, 'dDesemb').text = \
+                    item_di.desembaraco_aduaneiro_data.strftime('%Y-%m-%d')
+                # Via de transporte internacional informada na Declaração de Importação (DI)
+                etree.SubElement(di, 'tpViaTransp').text = str(item_di.tipo_via_transporte)
+                # Valor da AFRMM - Adicional ao Frete para Renovação da Marinha Mercante
+                if item_di.valor_afrmm:
+                    etree.SubElement(di, 'vAFRMM').text = '{:.2f}'.format(item_di.valor_afrmm or 0)
+                # tpIntermedio
+                etree.SubElement(di, 'tpIntermedio').text = str(item_di.tipo_intermediacao)
+                # CNPJ
+                if item_di.cnpj_adquirente:
+                    etree.SubElement(di, 'CNPJ').text = so_numeros(item_di.cnpj_adquirente)
+                # UFTerceiro
+                if item_di.uf_terceiro:
+                    etree.SubElement(di, 'UFTerceiro').text = item_di.uf_terceiro
+                # cExportador
+                etree.SubElement(di, 'cExportador').text = str(item_di.codigo_exportador)
+
+                # Adições 1-100
+                for adicao in item_di.adicoes:
+                    adi = etree.SubElement(di, 'adi')
+                    etree.SubElement(adi, 'nAdicao').text = str(adicao.numero)
+                    etree.SubElement(adi, 'nSeqAdic').text = str(adicao.sequencia)
+                    etree.SubElement(adi, 'cFabricante').text = str(adicao.codigo_fabricante)
+                    if adicao.desconto:
+                        etree.SubElement(adi, 'vDescDI').text = \
+                            '{:.2f}'.format(adicao.desconto or 0)
+                    # Número do ato concessório de Drawback
+                    if adicao.numero_drawback:
+                        etree.SubElement(adi, 'nDraw').text = str(adicao.numero_drawback)
 
     def _serializar_responsavel_tecnico(
             self, responsavel_tecnico, tag_raiz="infRespTec", retorna_string=True
@@ -1562,6 +1705,21 @@ class SerializacaoXML(Serializacao):
         etree.SubElement(icms_total, "vFCPSTRet").text = "{:.2f}".format(
             nota_fiscal.totais_fcp_st_ret
         )
+
+        # ICMS monofasico
+        if nota_fiscal.totais_icms_q_bc_mono:
+            etree.SubElement(icms_total, "qBCMono").text = "{:.2f}".format(nota_fiscal.totais_icms_q_bc_mono)
+        if nota_fiscal.totais_icms_v_icms_mono:
+            etree.SubElement(icms_total, "vICMSMono").text = "{:.2f}".format(nota_fiscal.totais_icms_v_icms_mono)
+        if nota_fiscal.totais_icms_q_bc_mono_reten:
+            etree.SubElement(icms_total, "qBCMonoReten").text = "{:.2f}".format(nota_fiscal.totais_icms_q_bc_mono_reten)
+        if nota_fiscal.totais_icms_v_icms_mono_reten:
+            etree.SubElement(icms_total, "vICMSMonoReten").text = "{:.2f}".format(nota_fiscal.totais_icms_v_icms_mono_reten)
+        if nota_fiscal.totais_icms_q_bc_mono_ret:
+            etree.SubElement(icms_total, "qBCMonoRet").text = "{:.2f}".format(nota_fiscal.totais_icms_q_bc_mono_ret)
+        if nota_fiscal.totais_icms_v_icms_mono_ret:
+            etree.SubElement(icms_total, "vICMSMonoRet").text = "{:.2f}".format(nota_fiscal.totais_icms_v_icms_mono_ret)
+
         etree.SubElement(icms_total, "vProd").text = str(
             nota_fiscal.totais_icms_total_produtos_e_servicos
         )

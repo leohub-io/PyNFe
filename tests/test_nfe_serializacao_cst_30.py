@@ -112,7 +112,7 @@ class SerializacaoNFeTestCase(unittest.TestCase):
             processo_emissao="0",  # 0=Emissão de NF-e com aplicativo do contribuinte;
             transporte_modalidade_frete=1,
             informacoes_adicionais_interesse_fisco="Mensagem complementar",
-            totais_tributos_aproximado=Decimal("21.06"),
+            totais_tributos_aproximado=Decimal("0"),
         )
 
         self.notafiscal.adicionar_produto_servico(
@@ -147,7 +147,7 @@ class SerializacaoNFeTestCase(unittest.TestCase):
             cofins_valor_base_calculo=Decimal("117.00"),
             cofins_aliquota_percentual=Decimal("3.00"),
             cofins_valor=Decimal("3.51"),
-            valor_tributos_aprox="21.06",
+            valor_tributos_aprox=Decimal("21.06"),
             numero_pedido="12345",
             numero_item="1",
             nfci="12345678-AAAA-FFFF-1234-000000000000",
@@ -248,12 +248,12 @@ class SerializacaoNFeTestCase(unittest.TestCase):
         self.assertEqual(CFOP, "5102")
         self.assertEqual(uCom, "UN")
         self.assertEqual(qCom, "12")
-        self.assertEqual(vUnCom, "9.7500000000")
+        self.assertEqual(vUnCom, "9.75")
         self.assertEqual(vProd, "117.00")
         self.assertEqual(cEANTrib, "SEM GTIN")
         self.assertEqual(uTrib, "UN")
         self.assertEqual(qTrib, "12")
-        self.assertEqual(vUnTrib, "9.7500000000")
+        self.assertEqual(vUnTrib, "9.75")
         self.assertEqual(indTot, "1")
         self.assertEqual(xPed, "12345")
         self.assertEqual(nItemPed, "1")
