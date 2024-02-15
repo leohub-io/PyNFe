@@ -135,7 +135,7 @@ class SerializacaoNFeTestCase(unittest.TestCase):
             icms_origem=0,
             pis_modalidade="07",
             cofins_modalidade="07",
-            valor_tributos_aprox="21.06",
+            valor_tributos_aprox=Decimal("21.06"),
             numero_pedido="12345",
             numero_item="1",
             nfci="12345678-AAAA-FFFF-1234-000000000000",

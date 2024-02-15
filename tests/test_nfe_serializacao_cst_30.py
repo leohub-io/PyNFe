@@ -147,7 +147,7 @@ class SerializacaoNFeTestCase(unittest.TestCase):
             cofins_valor_base_calculo=Decimal("117.00"),
             cofins_aliquota_percentual=Decimal("3.00"),
             cofins_valor=Decimal("3.51"),
-            valor_tributos_aprox="21.06",
+            valor_tributos_aprox=Decimal("21.06"),
             numero_pedido="12345",
             numero_item="1",
             nfci="12345678-AAAA-FFFF-1234-000000000000",

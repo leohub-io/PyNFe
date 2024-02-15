@@ -121,7 +121,7 @@ class SerializacaoNFeTestCase(unittest.TestCase):
             cofins_valor_base_calculo=Decimal("0.00"),
             cofins_aliquota_percentual=Decimal("0.00"),
             cofins_valor=Decimal("0.00"),
-            valor_tributos_aprox="1.01",
+            valor_tributos_aprox=Decimal("1.01"),
             informacoes_adicionais="Informações adicionais",
         )
 
