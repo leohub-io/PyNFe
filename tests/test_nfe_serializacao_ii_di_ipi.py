@@ -119,7 +119,7 @@ class SerializacaoNFeTestCase(unittest.TestCase):
             processo_emissao='0',  # 0=Emissão de NF-e com aplicativo do contribuinte;
             transporte_modalidade_frete=1,
             informacoes_adicionais_interesse_fisco='Mensagem complementar',
-            totais_tributos_aproximado=Decimal('21.06'),
+            totais_tributos_aproximado=Decimal('0'),
         )
 
         # Adicionar informações da Declaração de Importação
