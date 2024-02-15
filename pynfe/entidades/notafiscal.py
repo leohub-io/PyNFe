@@ -612,6 +612,11 @@ class NotaFiscalProduto(Entidade):
     #  - Unidade Tributavel (obrigatorio)
     unidade_tributavel = str()
 
+    # - CEST - Código especificador da substituição tributária
+    # NT2015/003 http://www.nfe.fazenda.gov.br/portal/exibirArquivo.aspx?conteudo=uXFlhOSgUZc=
+    # Tabela https://www.confaz.fazenda.gov.br/anexo-i.pdf
+    cest = str()
+
     # - cBenef
     codigo_beneficio_fiscal = str()
 

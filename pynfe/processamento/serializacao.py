@@ -319,10 +319,10 @@ class SerializacaoXML(Serializacao):
         sujeição aos regimes de substituição tributária e de
         antecipação de recolhimento do ICMS.
         """
-        if cest in produto_servico and produto_servico.cest:
+        if produto_servico.cest:
             etree.SubElement(prod, 'CEST').text = produto_servico.cest
 
-        if codigo_beneficio_fiscal in produto_servico and produto_servico.codigo_beneficio_fiscal:
+        if produto_servico.codigo_beneficio_fiscal:
             etree.SubElement(prod, "cBenef").text = produto_servico.codigo_beneficio_fiscal
 
         etree.SubElement(prod, "CFOP").text = produto_servico.cfop
