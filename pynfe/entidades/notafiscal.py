@@ -1150,9 +1150,11 @@ class Pagamento(Entidade):
     14=Duplicata Mercantil
     15=Boleto Bancário
     16=Depósito Bancário
-    17=Pagamento Instantâneo (PIX)
+    17=Pagamento Instantâneo (PIX) - Dinâmico
     18=Transferência bancária, Carteira Digital
     19=Programa de fidelidade, Cashback, Crédito Virtual
+    20=Pagamento Instantâneo (PIX) - Estático
+    22=Pagamento Eletrônico não Informado - falha de hardware do sistema emissor
     90=Sem pagamento
     99=Outros
     """
