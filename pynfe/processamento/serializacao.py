@@ -1140,7 +1140,7 @@ class SerializacaoXML(Serializacao):
     def _serializar_imposto_pis(
         self, produto_servico, modelo, tag_raiz="imposto", retorna_string=True
     ):
-        if modelo == 55:  # apenas nfe
+        if modelo in (55, 65):  # apenas nfe
             pisnt = ("04", "05", "06", "07", "08", "09")
             pis = etree.SubElement(tag_raiz, "PIS")
             if produto_servico.pis_modalidade in pisnt:
