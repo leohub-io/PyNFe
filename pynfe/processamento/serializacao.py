@@ -1140,7 +1140,7 @@ class SerializacaoXML(Serializacao):
     def _serializar_imposto_pis(
         self, produto_servico, modelo, tag_raiz="imposto", retorna_string=True
     ):
-        if modelo in (55, 65):  # apenas nfe/nfce
+        if modelo in (55, 65) and produto_servico.pis_situacao_tributaria:  # apenas nfe/nfce
             pisnt = ("04", "05", "06", "07", "08", "09")
             pis = etree.SubElement(tag_raiz, "PIS")
             if produto_servico.pis_situacao_tributaria in pisnt:
@@ -1214,7 +1214,7 @@ class SerializacaoXML(Serializacao):
     def _serializar_imposto_cofins(
         self, produto_servico, modelo, tag_raiz="imposto", retorna_string=True
     ):
-        if modelo in (55, 65):  # apenas nfe/nfce
+        if modelo in (55, 65) and produto_servico.cofins_situacao_tributaria:  # apenas nfe/nfce
             cofinsnt = ("04", "05", "06", "07", "08", "09")
             cofins = etree.SubElement(tag_raiz, "COFINS")
             if produto_servico.cofins_situacao_tributaria in cofinsnt:
