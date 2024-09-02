@@ -1140,7 +1140,9 @@ class SerializacaoXML(Serializacao):
     def _serializar_imposto_pis(
         self, produto_servico, modelo, tag_raiz="imposto", retorna_string=True
     ):
-        if modelo in (55, 65) and produto_servico.pis_situacao_tributaria:  # apenas nfe/nfce
+        if (
+            modelo in (55, 65) and produto_servico.pis_situacao_tributaria
+        ):  # apenas nfe/nfce
             pisnt = ("04", "05", "06", "07", "08", "09")
             pis = etree.SubElement(tag_raiz, "PIS")
             if produto_servico.pis_situacao_tributaria in pisnt:
@@ -1214,7 +1216,9 @@ class SerializacaoXML(Serializacao):
     def _serializar_imposto_cofins(
         self, produto_servico, modelo, tag_raiz="imposto", retorna_string=True
     ):
-        if modelo in (55, 65) and produto_servico.cofins_situacao_tributaria:  # apenas nfe/nfce
+        if (
+            modelo in (55, 65) and produto_servico.cofins_situacao_tributaria
+        ):  # apenas nfe/nfce
             cofinsnt = ("04", "05", "06", "07", "08", "09")
             cofins = etree.SubElement(tag_raiz, "COFINS")
             if produto_servico.cofins_situacao_tributaria in cofinsnt:
@@ -2008,7 +2012,19 @@ class SerializacaoQrcode(object):
         # url_chave -Texto com a URL de consulta por chave de acesso a ser impressa no DANFE NFC-e.
         # Informar a URL da “Consulta por chave de acesso da NFC-e”.
         # A mesma URL que deve estar informada no DANFE NFC-e para consulta por chave de acesso
-        lista_uf_padrao = ["PR", "CE", "RS", "RJ", "RO", "DF", "MS", "MT", "MG", "MA"]
+        lista_uf_padrao = [
+            "PR",
+            "CE",
+            "RS",
+            "RJ",
+            "RO",
+            "DF",
+            "MS",
+            "MT",
+            "MG",
+            "MA",
+            "AL",
+        ]
         if uf in lista_uf_padrao:
             qrcode = NFCE[uf]["QR"] + url
             url_chave = NFCE[uf]["URL"]
