@@ -152,7 +152,7 @@ NFCE = {
         "CHAVE": "",
         "INUTILIZACAO": "",
         "EVENTOS": "",
-        "QR": "http://nfce.sefaz.al.gov.br/QRCode/consultarNFCe.jsp",
+        "QR": "http://nfce.sefaz.al.gov.br/QRCode/consultarNFCe.jsp?",
         "URL": "http://nfce.sefaz.al.gov.br/consultaNFCe.htm?",
     },
     "SE": {
