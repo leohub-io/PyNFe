@@ -25,9 +25,10 @@ from pynfe.utils.webservices import NFE, NFCE, NFSE, MDFE, CTE
 from pynfe.entidades.certificado import CertificadoA1
 from .assinatura import AssinaturaA1
 
-TIMEOUT = int(os.getenv('TIMEOUT', 5))
-TIMEOUT_MDFE = int(os.getenv('TIMEOUT_MDFE', 50))
-TIMEOUT_CTE = int(os.getenv('TIMEOUT_CTE', 300))
+TIMEOUT = int(os.getenv("TIMEOUT", 15))
+TIMEOUT_MDFE = int(os.getenv("TIMEOUT_MDFE", 50))
+TIMEOUT_CTE = int(os.getenv("TIMEOUT_CTE", 300))
+
 
 class Comunicacao(object):
     """
@@ -617,7 +618,12 @@ class ComunicacaoSefaz(Comunicacao):
             xml = xml_declaration + xml
             # Faz o request com o servidor
             result = requests.post(
-                url, xml, headers=self._post_header(), cert=chave_cert, verify=False, timeout=TIMEOUT
+                url,
+                xml,
+                headers=self._post_header(),
+                cert=chave_cert,
+                verify=False,
+                timeout=TIMEOUT,
             )
             result.encoding = "utf-8"
             return result
@@ -1326,7 +1332,7 @@ class ComunicacaoCTe(Comunicacao):
         response = {
             "content-type": "application/soap+xml; charset=utf-8;",
             "Accept": "application/soap+xml; charset=utf-8;",
-            "SOAPAction": ""
+            "SOAPAction": "",
         }
         return response
 
