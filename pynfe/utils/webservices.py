@@ -296,8 +296,8 @@ NFCE = {
         "EVENTOS": "sefaz.go.gov.br/nfe/services/NFeRecepcaoEvento4?wsdl",
         "QR": "sefaz.go.gov.br/nfeweb/sites/nfce/danfeNFCe?",
         "CADASTRO": "sefaz.go.gov.br/nfe/services/CadConsultaCadastro4?wsdl",
-        "HTTPS": "https://nfeweb.",
-        "HOMOLOGACAO": "https://nfewebhomolog.",
+        "HTTPS": "https://nfe.",
+        "HOMOLOGACAO": "https://homolog.",
         "URL": "sefaz.go.gov.br/nfeweb/sites/nfce/danfeNFCe",
     },
     "DF": {
