@@ -304,7 +304,7 @@ NFCE = {
         "QR": "http://www.fazenda.df.gov.br/nfce/qrcode?",
         "URL": "www.fazenda.df.gov.br/nfce/consulta",
     },
-    # RO, AC, RR, PA, AP, TO, MA, PI, RN, PB, AL, SE, BA, ES, RJ, GO, DF
+    # RO, AC, RR, PA, AP, TO, MA, PI, RN, PB, AL, SE, BA, ES, RJ, GO, DF, CE
     "SVRS": {
         "STATUS": "svrs.rs.gov.br/ws/NfeStatusServico/NfeStatusServico4.asmx",
         "AUTORIZACAO": "svrs.rs.gov.br/ws/NfeAutorizacao/NFeAutorizacao4.asmx",
