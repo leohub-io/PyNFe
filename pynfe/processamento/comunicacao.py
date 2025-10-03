@@ -478,7 +478,7 @@ class ComunicacaoSefaz(Comunicacao):
             return self.url
 
         # estado que implementam webservices proprios
-        lista = ["PR", "MS", "SP", "AM", "CE", "BA", "GO", "MG", "MT", "PE", "RS"]
+        lista = ["PR", "MS", "SP", "AM", "BA", "GO", "MG", "MT", "PE", "RS"]
         if self.uf.upper() in lista:
             if self._ambiente == 1:
                 ambiente = "HTTPS"
@@ -523,6 +523,7 @@ class ComunicacaoSefaz(Comunicacao):
                 "SE",
                 "TO",
                 "PA",
+                "CE"
             ]
             if self.uf.upper() in lista_svrs:
                 if self._ambiente == 1:
