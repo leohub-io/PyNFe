@@ -1,11 +1,7 @@
 # -*- coding: utf-8 -*-
-<<<<<<< HEAD
-import re
-import os
-=======
->>>>>>> upstream-original/main
 import datetime
 import re
+import os
 
 import requests
 
@@ -134,17 +130,9 @@ class ComunicacaoSefaz(Comunicacao):
                 status = rec.xpath("ns:retEnviNFe/ns:cStat", namespaces=ns)[0].text
                 # Lote Recebido com Sucesso!
                 if status == "103":
-<<<<<<< HEAD
-                    nrec = rec.xpath("ns:retEnviNFe/ns:infRec/ns:nRec", namespaces=ns)[
-                        0
-                    ].text
-                    return 0, nrec, nota_fiscal, xml
-        return 1, retorno, nota_fiscal, xml
-=======
                     nrec = rec.xpath("ns:retEnviNFe/ns:infRec/ns:nRec", namespaces=ns)[0].text
                     return 0, nrec, nota_fiscal
         return 1, retorno, nota_fiscal
->>>>>>> upstream-original/main
 
     def consulta_recibo(self, modelo, numero, contingencia=False):
         """
@@ -354,12 +342,7 @@ class ComunicacaoSefaz(Comunicacao):
         etree.SubElement(raiz, "cUF").text = CODIGOS_ESTADOS[self.uf.upper()]
         etree.SubElement(raiz, "xServ").text = "STATUS"
         xml = self._construir_xml_soap("NFeStatusServico4", raiz)
-<<<<<<< HEAD
-
-        return self._post(url, xml), xml
-=======
         return self._post(url, xml, timeout)
->>>>>>> upstream-original/main
 
     def inutilizacao(
         self,
@@ -630,11 +613,7 @@ class ComunicacaoSefaz(Comunicacao):
                 headers=self._post_header(),
                 cert=chave_cert,
                 verify=False,
-<<<<<<< HEAD
-                timeout=TIMEOUT,
-=======
                 timeout=timeout,
->>>>>>> upstream-original/main
             )
             result.encoding = "utf-8"
             return result
