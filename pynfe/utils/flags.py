@@ -40,39 +40,47 @@ XSD_MDFE_PROCESSADA = "procMDFe_v3.00.xsd"
 
 
 ICMS_TIPOS_TRIBUTACAO = (
-    ("00", "Tributada integralmente"),
-    # ("02", "Tributação monofásica própria sobre combustíveis"),
-    ("10", "Tributada com cobranca do ICMS por substituicao tributária"),
-    # ("15", "Tributação monofásica própria e com responsabilidade pela retenção sobre combustíveis"),
-    ("20", "Com reducao da base de calculo"),
-    ("30", "Isenta ou não tributada e com cobrança do ICMS por substituição tributária"),
-    ("40", "Isenta"),
-    ("41", "Não tributada"),
-    ("41_ST", "Não tributada com ICMS ST devido para a UF de destino, nas operações interestaduais de produtos que "
-              "tiveram retenção antecipada de ICMS por ST na UF do remetente. Repasse via Substituto Tributário."),
-    ("50", "Suspensão"),
-    ("51", "Diferimento (a exigência do preenchimento das informações do ICMS diferido fica a critério de cada UF)"),
-    # ("53", "Tributação monofásica sobre combustíveis com recolhimento diferido"),
-    ("60", "Cobrado anteriormente por substituicao tributaria"),
-    ("60_ST", "Cobrado anteriormente por substituicao tributaria com ICMS ST devido para a UF de destino, "
-              "nas operações interestaduais de produtos que tiveram retenção antecipada de ICMS por ST na UF do "
-              "remetente. Repasse via Substituto Tributário."),
-    # ("61", "Tributação monofásica sobre combustíveis cobrada anteriormente"),
-    ("70", "tributada com redução de base de cálculo e com cobrança do ICMS por substituição tributária"),
-    ("90", "Outras (regime Normal)"),
-    ("101", "Tributação ICMS pelo Simples Nacional com permissão de crédito"),
-    ("102", "Tributação ICMS pelo Simples Nacional com permissão de crédito"),
-    ("103", "Isenção do ICMS no Simples Nacional para faixa de receita bruta"),
-    ("201", "Tributação ICMS pelo Simples Nacional com permissão de crédito e com cobrança do ICMS por substituição "
-            "tributária"),
-    ("202", "Tributação ICMS pelo Simples Nacional sem permissão de crédito e com cobrança do ICMS por substituição "
-            "tributária"),
-    ("203", "Tributação ICMS pelo Simples Nacional para faixa de receita bruta e com cobrança do ICMS por "
-            "substituição tributária"),
-    ("300", "Imune"),
-    ("400", "Não tributada pelo Simples Nacional"),
-    ("500", "ICMS cobrado anteriormente por substituição tributária (substituído) ou por antecipação"),
-    ("900", "Tributação ICMS pelo Simples Nacional")
+    ("00", "ICMS 00 - Tributada integralmente"),
+    ("02", "ICMS 02 - Tributação monofásica própria sobre combustíveis"),
+    ("10", "ICMS 10 - Tributada com cobranca do ICMS por substituicao tributaria"),
+    (
+        "15",
+        "ICMS 15 - Tributação monofásica própria e com responsabilidade pela retenção sobre combustíveis",
+    ),
+    ("20", "ICMS 20 - Com reducao da base de calculo"),
+    (
+        "30",
+        ("ICMS 30 - Isenta ou nao tributada e com cobranca do ICMS por substituicao tributaria"),
+    ),
+    ("40", "ICMS 40 - Isenta"),
+    ("41", "ICMS 41 - Nao tributada"),
+    ("50", "ICMS 50 - Suspensao"),
+    ("51", "ICMS 51 - Diferimento"),
+    ("53", "ICMS 53 - Tributação monofásica sobre combustíveis com recolhimento diferido"),
+    ("60", "ICMS 60 - Cobrado anteriormente por substituicao tributaria"),
+    ("61", "ICMS 61 - Tributação monofásica sobre combustíveis cobrada anteriormente"),
+    (
+        "70",
+        ("ICMS 70 - Com reducao da base de calculo e cobranca do ICMS por substituicao tributaria"),
+    ),
+    ("90", "ICMS 90 - Outras"),
+    ("101", "ICMS 101 - Tributação ICMS pelo Simples Nacional, CSOSN=101"),
+    (
+        "102",
+        "ICMS 102 - Tributação ICMS pelo Simples Nacional, CSOSN=102, 103, 300 ou 400",
+    ),
+    ("201", "ICMS 201 - Tributação ICMS pelo Simples Nacional, CSOSN=201"),
+    ("202", "ICMS 202 - Tributação ICMS pelo Simples Nacional, CSOSN=202 ou 203"),
+    ("500", "ICMS 500 - Tributação ICMS pelo Simples Nacional, CSOSN=500"),
+    ("900", "ICMS 900 - Tributação ICMS pelo Simples Nacional, CSOSN=900"),
+    (
+        "ST",
+        (
+            "ICMS ST - Grupo de informação do ICMS ST devido para a UF de destino, nas"
+            " operações interestaduais de produtos que tiveram retenção antecipada de"
+            " ICMS por ST na UF do remetente. Repasse via Substituto Tributário."
+        ),
+    ),
 )
 
 ICMS_ORIGENS = (
@@ -95,10 +103,7 @@ ICMS_ORIGENS = (
     ),
     (
         5,
-        (
-            "Nacional, mercadoria ou bem com Conteúdo de Importação inferior ou igual a"
-            " 40%. "
-        ),
+        ("Nacional, mercadoria ou bem com Conteúdo de Importação inferior ou igual a 40%. "),
     ),
     (
         6,
@@ -626,9 +631,53 @@ CODIGOS_ESTADOS = {
     "GO": "52",
     "DF": "53",
     "AN": "91",
+    "EX": "99",
 }
 
-NF_TIPO_DOCUMENTO = (
-    "CPF",
-    "CNPJ"
+BANDEIRA_CARTAO = (
+    ("01", "Visa"),
+    ("02", "MasterCard"),
+    ("03", "AmericanExpress"),
+    ("04", "Sorocred"),
+    ("05", "DinersClub"),
+    ("06", "Elo"),
+    ("07", "Hipercard"),
+    ("08", "Aura"),
+    ("09", "Cabal"),
+    ("10", "Alelo"),
+    ("11", "BanesCard"),
+    ("12", "CalCard"),
+    ("13", "Credz"),
+    ("14", "Discover"),
+    ("15", "GoodCard"),
+    ("16", "GrenCard"),
+    ("17", "Hiper"),
+    ("18", "JcB"),
+    ("19", "Mais"),
+    ("20", "MaxVan"),
+    ("21", "Policard"),
+    ("22", "RedeCompras"),
+    ("23", "Sodexo"),
+    ("24", "ValeCard"),
+    ("25", "Verocheque"),
+    ("26", "VR"),
+    ("27", "Ticket"),
+    ("99", "Outros"),
+)
+
+FORMAS_PAGAMENTO = (
+    ("01", "Dinheiro"),
+    ("02", "Cheque"),
+    ("03", "Cartao Credito"),
+    ("04", "Cartao Debito"),
+    ("05", "Credito Loja"),
+    ("10", "Vale Alimentacao"),
+    ("11", "Vale Refeicao"),
+    ("12", "Vale Presente"),
+    ("13", "Vale Combustivel"),
+    ("14", "Duplicata Mercantil"),
+    ("15", "Boleto Bancario"),
+    ("17", "Pagamento Instantaneo"),
+    ("90", "Sem Pagamento"),
+    ("99", "Outro"),
 )

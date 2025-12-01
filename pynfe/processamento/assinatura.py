@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-from pynfe.utils import etree, remover_acentos, CustomXMLSigner
-from pynfe.utils.flags import NAMESPACE_SIG
 import signxml
+from typing import Union
+
 from pynfe.entidades import CertificadoA1
+from pynfe.utils import CustomXMLSigner, etree, remover_acentos
 
 
 class Assinatura(object):
@@ -26,14 +27,12 @@ class AssinaturaA1(Assinatura):
     def __init__(self, certificado, senha):
         self.key, self.cert = CertificadoA1(certificado).separar_arquivo(senha)
 
-    def assinar(self, xml, retorna_string=False):
+    def assinar(self, xml: etree._Element, retorna_string=False) -> Union[str, etree._Element]:
         # busca tag que tem id(reference_uri), logo nao importa se tem namespace
         reference = xml.find(".//*[@Id]").attrib["Id"]
 
         # retira acentos
-        xml_str = remover_acentos(
-            etree.tostring(xml, encoding="unicode", pretty_print=False)
-        )
+        xml_str = remover_acentos(etree.tostring(xml, encoding="unicode", pretty_print=False))
         xml = etree.fromstring(xml_str)
 
         signer = CustomXMLSigner(
@@ -48,14 +47,7 @@ class AssinaturaA1(Assinatura):
         signer.namespaces = ns
 
         ref_uri = ("#%s" % reference) if reference else None
-        signed_root = signer.sign(
-            xml, key=self.key, cert=self.cert, reference_uri=ref_uri
-        )
-
-        ns = {"ns": NAMESPACE_SIG}
-        # coloca o certificado na tag X509Data/X509Certificate
-        tagX509Data = signed_root.find(".//ns:X509Data", namespaces=ns)
-        etree.SubElement(tagX509Data, "X509Certificate").text = self.cert
+        signed_root = signer.sign(xml, key=self.key, cert=self.cert, reference_uri=ref_uri)
         if retorna_string:
             return etree.tostring(signed_root, encoding="unicode", pretty_print=False)
         else:
