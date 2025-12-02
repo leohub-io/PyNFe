@@ -740,6 +740,8 @@ class NotaFiscalProduto(Entidade):
     #   - Origem (obrigatorio - seleciona de lista) - ICMS_ORIGENS
     icms_origem = int()
 
+    icms_csosn = str() # TODO estava acusando atributo faltante, na dependencia original ele nao existe, verificar se foi feita correçao na original
+
     #   - ICMS
     #    - Modalidade de determinacao da BC ICMS (seleciona de lista) - ICMS_MODALIDADES
     icms_modalidade_determinacao_bc = int()
