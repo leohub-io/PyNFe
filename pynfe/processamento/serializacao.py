@@ -38,7 +38,7 @@ class Serializacao(object):
     _ambiente = 1  # 1 = Produção, 2 = Homologação
     _contingencia = None  # Justificativa da entrada em contingência (min 20, max 256 caracteres)
     _so_cpf = False  # Destinatário com apenas o cpf do cliente
-    _nome_aplicacao = "LeoHub.io"
+    _nome_aplicacao = "PyNFe"
 
     def __new__(cls, *args, **kwargs):
         if cls == Serializacao:
@@ -110,26 +110,20 @@ class SerializacaoXML(Serializacao):
             etree.SubElement(raiz, "CPF").text = so_numeros(emitente.cnpj)
         else:
             etree.SubElement(raiz, "CNPJ").text = so_numeros(emitente.cnpj)
-        etree.SubElement(raiz, "xNome").text = re.sub(
-            "[^\w -]+", "", emitente.razao_social.strip()
-        )
-        etree.SubElement(raiz, "xFant").text = re.sub(
-            "[^\w -]+", "", emitente.nome_fantasia.strip()
-        )
+        etree.SubElement(raiz, "xNome").text = emitente.razao_social
+        etree.SubElement(raiz, "xFant").text = emitente.nome_fantasia
         # Endereço
         endereco = etree.SubElement(raiz, "enderEmit")
-        etree.SubElement(endereco, "xLgr").text = emitente.endereco_logradouro.strip()
+        etree.SubElement(endereco, "xLgr").text = emitente.endereco_logradouro
         etree.SubElement(endereco, "nro").text = emitente.endereco_numero
         if emitente.endereco_complemento:
-            etree.SubElement(endereco, "xCpl").text = (
-                emitente.endereco_complemento.strip()
-            )
-        etree.SubElement(endereco, "xBairro").text = emitente.endereco_bairro.strip()
+            etree.SubElement(endereco, "xCpl").text = emitente.endereco_complemento
+        etree.SubElement(endereco, "xBairro").text = emitente.endereco_bairro
         etree.SubElement(endereco, "cMun").text = obter_codigo_por_municipio(
             emitente.endereco_municipio, emitente.endereco_uf
         )
-        etree.SubElement(endereco, "xMun").text = emitente.endereco_municipio.strip()
-        etree.SubElement(endereco, "UF").text = emitente.endereco_uf.strip()
+        etree.SubElement(endereco, "xMun").text = emitente.endereco_municipio
+        etree.SubElement(endereco, "UF").text = emitente.endereco_uf
         etree.SubElement(endereco, "CEP").text = so_numeros(emitente.endereco_cep)
         etree.SubElement(endereco, "cPais").text = emitente.endereco_pais
         etree.SubElement(endereco, "xPais").text = obter_pais_por_codigo(emitente.endereco_pais)
@@ -183,16 +177,14 @@ class SerializacaoXML(Serializacao):
         if cliente.indicador_ie == 9:
             # 9 – Não Contribuinte
             etree.SubElement(raiz, "indIEDest").text = "9"
-        elif (cliente.indicador_ie == 2 or cliente.isento_icms) or (
-            cliente.inscricao_estadual
-            and cliente.inscricao_estadual.upper() == "ISENTO"
-        ):
+        elif (
+            cliente.indicador_ie == 2 or cliente.isento_icms
+        ) or cliente.inscricao_estadual.upper() == "ISENTO":
             etree.SubElement(raiz, "indIEDest").text = "2"
         else:
             # Indicador da IE do destinatário: 1 – Contribuinte ICMSpagamento à vista;
             etree.SubElement(raiz, "indIEDest").text = str(cliente.indicador_ie)
-            if cliente.inscricao_estadual:
-                etree.SubElement(raiz, "IE").text = cliente.inscricao_estadual
+            etree.SubElement(raiz, "IE").text = cliente.inscricao_estadual
         # Suframa
         if cliente.inscricao_suframa:
             etree.SubElement(raiz, "ISUF").text = cliente.inscricao_suframa
@@ -218,23 +210,15 @@ class SerializacaoXML(Serializacao):
                 transportadora.numero_documento
             )
         if transportadora.razao_social:
-            etree.SubElement(raiz, "xNome").text = re.sub(
-                "[^\w -]+", "", transportadora.razao_social.strip()
-            )
+            etree.SubElement(raiz, "xNome").text = transportadora.razao_social
         if transportadora.inscricao_estadual:
-            etree.SubElement(raiz, "IE").text = (
-                transportadora.inscricao_estadual.strip()
-            )
+            etree.SubElement(raiz, "IE").text = transportadora.inscricao_estadual
 
         # Endereço
         if transportadora.endereco_logradouro:
-            etree.SubElement(raiz, "xEnder").text = (
-                transportadora.endereco_logradouro.strip()
-            )
+            etree.SubElement(raiz, "xEnder").text = transportadora.endereco_logradouro
         if transportadora.endereco_municipio:
-            etree.SubElement(raiz, "xMun").text = (
-                transportadora.endereco_municipio.strip()
-            )
+            etree.SubElement(raiz, "xMun").text = transportadora.endereco_municipio
         if transportadora.endereco_uf:
             etree.SubElement(raiz, "UF").text = transportadora.endereco_uf
 
@@ -264,19 +248,6 @@ class SerializacaoXML(Serializacao):
             entrega_retirada.endereco_uf,
         )
         etree.SubElement(raiz, "UF").text = entrega_retirada.endereco_uf
-
-        if retorna_string:
-            return etree.tostring(raiz, encoding="unicode", pretty_print=True)
-        else:
-            return raiz
-
-    def _serializar_observacoes_contribuinte(
-        self, observacoes_contribuinte, tag_raiz="obsCont", retorna_string=True
-    ):
-        raiz = etree.Element(tag_raiz)
-        raiz.attrib["xCampo"] = observacoes_contribuinte.nome_campo
-
-        etree.SubElement(raiz, "xTexto").text = observacoes_contribuinte.observacao
 
         if retorna_string:
             return etree.tostring(raiz, encoding="unicode", pretty_print=True)
@@ -330,23 +301,8 @@ class SerializacaoXML(Serializacao):
         sujeição aos regimes de substituição tributária e de
         antecipação de recolhimento do ICMS.
         """
-        if produto_servico.cest:
-            etree.SubElement(prod, "CEST").text = produto_servico.cest
-
-        if produto_servico.codigo_beneficio_fiscal:
-            etree.SubElement(prod, "cBenef").text = (
-                produto_servico.codigo_beneficio_fiscal
-            )
-
-        etree.SubElement(prod, "CFOP").text = produto_servico.cfop
-        etree.SubElement(prod, "uCom").text = produto_servico.unidade_comercial
-        etree.SubElement(prod, "qCom").text = str(
-            produto_servico.quantidade_comercial or 0
-        )
-        etree.SubElement(prod, "vUnCom").text = str("{:.2f}").format(
-            produto_servico.valor_unitario_comercial or 0
-        )
-
+        # if produto_servico.cest:
+        #    etree.SubElement(prod, 'CEST').text = produto_servico.cest
         etree.SubElement(prod, "vProd").text = str("{:.2f}").format(
             produto_servico.valor_total_bruto or 0
         )
@@ -367,9 +323,9 @@ class SerializacaoXML(Serializacao):
         if produto_servico.desconto:
             etree.SubElement(prod, "vDesc").text = "{:.2f}".format(produto_servico.desconto)
         # outras despesas acessórias
-        if produto_servico.outras_despesas:
+        if produto_servico.outras_despesas_acessorias:
             etree.SubElement(prod, "vOutro").text = "{:.2f}".format(
-                produto_servico.outras_despesas
+                produto_servico.outras_despesas_acessorias
             )
 
         """ Indica se valor do Item (vProd) entra no valor total da NF-e (vProd)
@@ -387,11 +343,9 @@ class SerializacaoXML(Serializacao):
         # Número do Pedido de Compra. Tam 1-15
         if produto_servico.numero_pedido:
             etree.SubElement(prod, "xPed").text = str(produto_servico.numero_pedido)
-
         # Item do Pedido de Compra. Tam 6
         if produto_servico.numero_item:
             etree.SubElement(prod, "nItemPed").text = str(produto_servico.numero_item)
-
         # nFCI - Número de controle da FCI - Ficha de Conteúdo de Importação.
         if produto_servico.nfci:
             etree.SubElement(prod, "nFCI").text = produto_servico.nfci
@@ -731,7 +685,7 @@ class SerializacaoXML(Serializacao):
                 )
 
         # 40=Isenta / 41=Não tributada / 50=Com suspensão
-        elif produto_servico.icms_modalidade in ["40", "41", "50", "41_ST"]:
+        elif produto_servico.icms_modalidade in ["40", "41", "50"]:
             icms_item = etree.SubElement(icms, "ICMS40")
             etree.SubElement(icms_item, "orig").text = str(produto_servico.icms_origem)
             etree.SubElement(icms_item, "CST").text = str(produto_servico.icms_modalidade)
@@ -742,16 +696,6 @@ class SerializacaoXML(Serializacao):
                 )  # Valor do ICMS Desonerado
                 etree.SubElement(icms_item, "motDesICMS").text = str(
                     produto_servico.icms_motivo_desoneracao
-                )
-
-            if produto_servico.icms_base_calculo_retido_st > 0:
-                etree.SubElement(icms_item, "vBCSTRet").text = "{:.2f}".format(
-                    produto_servico.icms_base_calculo_retido_st or 0
-                )
-
-            if produto_servico.icms_valor_retido_st > 0:
-                etree.SubElement(icms_item, "vICMSSTRet").text = "{:.2f}".format(
-                    produto_servico.icms_valor_retido_st or 0
                 )
 
         # 51=Com diferimento
@@ -800,7 +744,7 @@ class SerializacaoXML(Serializacao):
             )
 
         # 60=ICMS cobrado anteriormente por substituição tributária
-        elif produto_servico.icms_modalidade in ["60", "60_ST"]:
+        elif produto_servico.icms_modalidade in ["ST", "60"]:
             icms_item = etree.SubElement(icms, "ICMS" + produto_servico.icms_modalidade)
             etree.SubElement(icms_item, "orig").text = str(produto_servico.icms_origem)
             etree.SubElement(icms_item, "CST").text = "60"
@@ -991,7 +935,7 @@ class SerializacaoXML(Serializacao):
         elif produto_servico.icms_modalidade == "101":
             icms_item = etree.SubElement(icms, "ICMSSN" + produto_servico.icms_modalidade)
             etree.SubElement(icms_item, "orig").text = str(produto_servico.icms_origem)
-            etree.SubElement(icms_item, "CSOSN").text = produto_servico.icms_modalidade
+            etree.SubElement(icms_item, "CSOSN").text = produto_servico.icms_csosn
             etree.SubElement(icms_item, "pCredSN").text = "{:.2f}".format(
                 produto_servico.icms_aliquota
             )  # Alíquota aplicável de cálculo do crédito (Simples Nacional).
@@ -1007,7 +951,7 @@ class SerializacaoXML(Serializacao):
         elif produto_servico.icms_modalidade in ("102", "103", "300", "400"):
             icms_item = etree.SubElement(icms, "ICMSSN102")
             etree.SubElement(icms_item, "orig").text = str(produto_servico.icms_origem)
-            etree.SubElement(icms_item, "CSOSN").text = produto_servico.icms_modalidade
+            etree.SubElement(icms_item, "CSOSN").text = produto_servico.icms_csosn
 
         # 201=Tributada pelo Simples Nacional com permissão de crédito e com cobrança do ICMS
         # 202=Tributada pelo Simples Nacional sem permissão de crédito e com cobrança do ICMS
@@ -1015,10 +959,10 @@ class SerializacaoXML(Serializacao):
         elif produto_servico.icms_modalidade in ("201", "202", "203"):
             if produto_servico.icms_modalidade == "201":
                 icms_item = etree.SubElement(icms, "ICMSSN201")
-            else:
+            elif produto_servico.icms_modalidade in ["202", "203"]:
                 icms_item = etree.SubElement(icms, "ICMSSN202")
             etree.SubElement(icms_item, "orig").text = str(produto_servico.icms_origem)
-            etree.SubElement(icms_item, "CSOSN").text = produto_servico.icms_modalidade
+            etree.SubElement(icms_item, "CSOSN").text = produto_servico.icms_csosn
 
             etree.SubElement(icms_item, "modBCST").text = str(
                 produto_servico.icms_st_modalidade_determinacao_bc
@@ -1063,33 +1007,13 @@ class SerializacaoXML(Serializacao):
         elif produto_servico.icms_modalidade == "500":
             icms_item = etree.SubElement(icms, "ICMSSN" + produto_servico.icms_modalidade)
             etree.SubElement(icms_item, "orig").text = str(produto_servico.icms_origem)
-            etree.SubElement(icms_item, "CSOSN").text = produto_servico.icms_modalidade
-
-            if produto_servico.icms_reducao_base_calculo_efetiva:
-                etree.SubElement(icms_item, "pRedBCEfet").text = (
-                    produto_servico.icms_reducao_base_calculo_efetiva
-                )
-
-            if produto_servico.icms_base_calculo_efetiva:
-                etree.SubElement(icms_item, "vBCEfet").text = (
-                    produto_servico.icms_base_calculo_efetiva
-                )
-
-            if produto_servico.icms_aliquota_efetiva:
-                etree.SubElement(icms_item, "pICMSEfet").text = (
-                    produto_servico.icms_aliquota_efetiva
-                )
-
-            if produto_servico.icms_valor_efetivo:
-                etree.SubElement(icms_item, "vICMSEfet").text = (
-                    produto_servico.icms_valor_efetivo
-                )
+            etree.SubElement(icms_item, "CSOSN").text = produto_servico.icms_csosn
 
         # 900=Outros
         elif produto_servico.icms_modalidade == "900":
             icms_item = etree.SubElement(icms, "ICMSSN" + produto_servico.icms_modalidade)
             etree.SubElement(icms_item, "orig").text = str(produto_servico.icms_origem)
-            etree.SubElement(icms_item, "CSOSN").text = produto_servico.icms_modalidade
+            etree.SubElement(icms_item, "CSOSN").text = produto_servico.icms_csosn
 
             if (produto_servico.icms_valor_base_calculo > 0) and (produto_servico.icms_valor > 0):
                 etree.SubElement(icms_item, "modBC").text = str(
@@ -1554,16 +1478,13 @@ class SerializacaoXML(Serializacao):
         if self._contingencia is not None:
             if nota_fiscal.forma_emissao == "1":
                 nota_fiscal.forma_emissao = "9"
-
         etree.SubElement(ide, "tpEmis").text = str(nota_fiscal.forma_emissao)
         etree.SubElement(ide, "cDV").text = nota_fiscal.dv_codigo_numerico_aleatorio
         etree.SubElement(ide, "tpAmb").text = str(self._ambiente)
         etree.SubElement(ide, "finNFe").text = str(nota_fiscal.finalidade_emissao)
         if nota_fiscal.modelo == 65:
             etree.SubElement(ide, "indFinal").text = str(1)
-            etree.SubElement(ide, "indPres").text = str(
-                nota_fiscal.indicador_presencial
-            )
+            etree.SubElement(ide, "indPres").text = str(1)
         else:
             etree.SubElement(ide, "indFinal").text = str(nota_fiscal.cliente_final)
             etree.SubElement(ide, "indPres").text = str(nota_fiscal.indicador_presencial)
@@ -1619,7 +1540,9 @@ class SerializacaoXML(Serializacao):
             etree.SubElement(ide, "dhCont").text = (
                 nota_fiscal.data_emissao.strftime("%Y-%m-%dT%H:%M:%S") + tz
             )  # Data e Hora da entrada em contingência AAAA-MM-DDThh:mm:ssTZD
-            etree.SubElement(ide, "xJust").text = (
+            etree.SubElement(
+                ide, "xJust"
+            ).text = (
                 self._contingencia
             )  # Justificativa da entrada em contingência (min 20, max 256 caracteres)
 
@@ -1757,36 +1680,37 @@ class SerializacaoXML(Serializacao):
         )
 
         etree.SubElement(icms_total, "vOutro").text = "{:.2f}".format(
-            nota_fiscal.totais_icms_outras_despesas
+            nota_fiscal.totais_icms_outras_despesas_acessorias
         )
         etree.SubElement(icms_total, "vNF").text = "{:.2f}".format(
             nota_fiscal.totais_icms_total_nota
         )
-        etree.SubElement(icms_total, "vTotTrib").text = "{:.2f}".format(
-            nota_fiscal.totais_tributos_aproximado or 0
-        )
+        if nota_fiscal.totais_tributos_aproximado:
+            etree.SubElement(icms_total, "vTotTrib").text = "{:.2f}".format(
+                nota_fiscal.totais_tributos_aproximado
+            )
 
         # Transporte
         transp = etree.SubElement(raiz, "transp")
         etree.SubElement(transp, "modFrete").text = str(nota_fiscal.transporte_modalidade_frete)
 
-        # Transportadora
-        if nota_fiscal.transporte_transportadora:
-            transp.append(
-                self._serializar_transportadora(
-                    nota_fiscal.transporte_transportadora,
-                    retorna_string=False,
-                )
-            )
-
         # Apenas NF-e
         if nota_fiscal.modelo == 55:
+            # Transportadora
+            if nota_fiscal.transporte_transportadora:
+                transp.append(
+                    self._serializar_transportadora(
+                        nota_fiscal.transporte_transportadora,
+                        retorna_string=False,
+                    )
+                )
+
             # Veículo
             if nota_fiscal.transporte_veiculo_placa and nota_fiscal.transporte_veiculo_uf:
                 veiculo = etree.SubElement(transp, "veicTransp")
-                etree.SubElement(veiculo, "placa").text = (
-                    nota_fiscal.transporte_veiculo_placa
-                )  # Obrigatório EX: XXX9999
+                etree.SubElement(
+                    veiculo, "placa"
+                ).text = nota_fiscal.transporte_veiculo_placa  # Obrigatório EX: XXX9999
                 etree.SubElement(veiculo, "UF").text = nota_fiscal.transporte_veiculo_uf
                 # Registro Nacional de Transportador de Carga (ANTT)
                 if nota_fiscal.transporte_veiculo_rntc:
@@ -1880,26 +1804,16 @@ class SerializacaoXML(Serializacao):
         if (
             nota_fiscal.informacoes_adicionais_interesse_fisco
             or nota_fiscal.informacoes_complementares_interesse_contribuinte
-            or nota_fiscal.observacoes_contribuinte
         ):
             info_ad = etree.SubElement(raiz, "infAdic")
             if nota_fiscal.informacoes_adicionais_interesse_fisco:
-                etree.SubElement(info_ad, "infAdFisco").text = (
-                    nota_fiscal.informacoes_adicionais_interesse_fisco
-                )
-
+                etree.SubElement(
+                    info_ad, "infAdFisco"
+                ).text = nota_fiscal.informacoes_adicionais_interesse_fisco
             if nota_fiscal.informacoes_complementares_interesse_contribuinte:
-                etree.SubElement(info_ad, "infCpl").text = (
-                    nota_fiscal.informacoes_complementares_interesse_contribuinte
-                )
-
-            if nota_fiscal.observacoes_contribuinte:
-                for obs in nota_fiscal.observacoes_contribuinte:
-                    det = self._serializar_observacoes_contribuinte(
-                        obs, retorna_string=False
-                    )
-
-                    info_ad.append(det)
+                etree.SubElement(
+                    info_ad, "infCpl"
+                ).text = nota_fiscal.informacoes_complementares_interesse_contribuinte
 
         # Responsavel Tecnico NT2018/003
         if nota_fiscal.responsavel_tecnico:
@@ -1915,6 +1829,8 @@ class SerializacaoXML(Serializacao):
             return raiz
 
     def serializar_evento(self, evento, tag_raiz="evento", retorna_string=False):
+        tz = datetime.now().astimezone().strftime("%z")
+        tz = "{}:{}".format(tz[:-2], tz[-2:])
         raiz = etree.Element(tag_raiz, versao="1.00", xmlns=NAMESPACE_NFE)
         e = etree.SubElement(raiz, "infEvento", Id=evento.identificador)
         etree.SubElement(e, "cOrgao").text = CODIGOS_ESTADOS[evento.uf.upper()]
@@ -1924,9 +1840,9 @@ class SerializacaoXML(Serializacao):
         else:
             etree.SubElement(e, "CNPJ").text = evento.cnpj
         etree.SubElement(e, "chNFe").text = evento.chave
-        etree.SubElement(e, "dhEvento").text = evento.data_emissao.strftime(
-            "%Y-%m-%dT%H:%M:%S%Z"
-        ).replace("UTC", "")
+        etree.SubElement(e, "dhEvento").text = (
+            evento.data_emissao.strftime("%Y-%m-%dT%H:%M:%S") + tz
+        )
         etree.SubElement(e, "tpEvento").text = evento.tp_evento
         etree.SubElement(e, "nSeqEvento").text = str(evento.n_seq_evento)
         etree.SubElement(e, "verEvento").text = "1.00"
@@ -1980,7 +1896,7 @@ class SerializacaoXML(Serializacao):
             inclusao = etree.SubElement(det, "evIncCondutorMDFe")
             etree.SubElement(inclusao, "descEvento").text = evento.descricao
             condutor = etree.SubElement(inclusao, "condutor")
-            etree.SubElement(condutor, "xNome").text = evento.nome_motorista.strip()
+            etree.SubElement(condutor, "xNome").text = evento.nome_motorista
             etree.SubElement(condutor, "CPF").text = evento.cpf_motorista
         elif evento.descricao == "Inclusao DF-e":
             inclusao = etree.SubElement(det, "evIncDFeMDFe")
@@ -2004,7 +1920,7 @@ class SerializacaoXML(Serializacao):
 
             # Informações do pagamento
             infPag = etree.SubElement(pagamento, "infPag")
-            etree.SubElement(infPag, "xNome").text = evento.nome_contratante.strip()
+            etree.SubElement(infPag, "xNome").text = evento.nome_contratante
             if len(evento.cpfcnpj_contratante) == 11:
                 etree.SubElement(infPag, "CPF").text = evento.cpfcnpj_contratante
             else:
@@ -2100,19 +2016,7 @@ class SerializacaoQrcode(object):
         # url_chave -Texto com a URL de consulta por chave de acesso a ser impressa no DANFE NFC-e.
         # Informar a URL da “Consulta por chave de acesso da NFC-e”.
         # A mesma URL que deve estar informada no DANFE NFC-e para consulta por chave de acesso
-        lista_uf_padrao = [
-            "PR",
-            "CE",
-            "RS",
-            "RJ",
-            "RO",
-            "DF",
-            "MS",
-            "MT",
-            "MG",
-            "MA",
-            "AL",
-        ]
+        lista_uf_padrao = ["PR", "CE", "RS", "RJ", "RO", "DF"]
         if uf in lista_uf_padrao:
             qrcode = NFCE[uf]["QR"] + url
             url_chave = NFCE[uf]["URL"]
@@ -2123,28 +2027,21 @@ class SerializacaoQrcode(object):
             else:
                 qrcode = NFCE[uf]["HTTPS"] + "www.homologacao." + NFCE[uf]["QR"] + url
                 url_chave = NFCE[uf]["HTTPS"] + "www.homologacao." + NFCE[uf]["URL"]
-        # BA tem comportamento distinto para qrcode e url
+        # BA tem comportamento distindo para qrcode e url
         elif uf == "BA":
             if tpamb == "1":
                 qrcode = NFCE[uf]["HTTPS"] + NFCE[uf]["QR"] + url
             else:
                 qrcode = NFCE[uf]["HOMOLOGACAO"] + NFCE[uf]["QR"] + url
             url_chave = url_chave = NFCE[uf]["URL"]
-        # # MG tem comportamento distinto qrcode e url
-        # elif uf == "MG":
-        #     qrcode = NFCE[uf]["QR"] + url
-        #     if tpamb == "1":
-        #         url_chave = NFCE[uf]["HTTPS"] + NFCE[uf]["URL"]
-        #     else:
-        #         url_chave = NFCE[uf]["HOMOLOGACAO"] + NFCE[uf]["URL"]
-        # AC, AM, RR, PA,
-        elif uf == "GO":
+        # MG tem comportamento distindos qrcode e url
+        elif uf == "MG":
+            qrcode = NFCE[uf]["QR"] + url
             if tpamb == "1":
-                qrcode = "https://nfeweb." + NFCE[uf]["QR"] + url
                 url_chave = NFCE[uf]["HTTPS"] + NFCE[uf]["URL"]
             else:
-                qrcode = "https://nfewebhomolog." + NFCE[uf]["QR"] + url
                 url_chave = NFCE[uf]["HOMOLOGACAO"] + NFCE[uf]["URL"]
+        # AC, AM, RR, PA,
         else:
             if tpamb == "1":
                 qrcode = NFCE[uf]["HTTPS"] + NFCE[uf]["QR"] + url
@@ -2309,33 +2206,27 @@ class SerializacaoMDFe(Serializacao):
             etree.SubElement(raiz, "CPF").text = so_numeros(emitente.cpfcnpj)
         else:
             etree.SubElement(raiz, "CNPJ").text = so_numeros(emitente.cpfcnpj)
-        etree.SubElement(raiz, "IE").text = emitente.inscricao_estadual.strip()
-        etree.SubElement(raiz, "xNome").text = re.sub(
-            "[^\w -]+", "", emitente.razao_social.strip()
-        )
+        etree.SubElement(raiz, "IE").text = emitente.inscricao_estadual
+        etree.SubElement(raiz, "xNome").text = emitente.razao_social
         if emitente.nome_fantasia:
-            etree.SubElement(raiz, "xFant").text = re.sub(
-                "[^\w -]+", "", emitente.nome_fantasia.strip()
-            )
+            etree.SubElement(raiz, "xFant").text = emitente.nome_fantasia
         # Endereço
         endereco = etree.SubElement(raiz, "enderEmit")
-        etree.SubElement(endereco, "xLgr").text = emitente.endereco_logradouro.strip()
-        etree.SubElement(endereco, "nro").text = emitente.endereco_numero.strip()
+        etree.SubElement(endereco, "xLgr").text = emitente.endereco_logradouro
+        etree.SubElement(endereco, "nro").text = emitente.endereco_numero
         if emitente.endereco_complemento:
-            etree.SubElement(endereco, "xCpl").text = (
-                emitente.endereco_complemento.strip()
-            )
-        etree.SubElement(endereco, "xBairro").text = emitente.endereco_bairro.strip()
+            etree.SubElement(endereco, "xCpl").text = emitente.endereco_complemento
+        etree.SubElement(endereco, "xBairro").text = emitente.endereco_bairro
         etree.SubElement(endereco, "cMun").text = obter_codigo_por_municipio(
             emitente.endereco_municipio, emitente.endereco_uf
         )
-        etree.SubElement(endereco, "xMun").text = emitente.endereco_municipio.strip()
+        etree.SubElement(endereco, "xMun").text = emitente.endereco_municipio
         etree.SubElement(endereco, "CEP").text = so_numeros(emitente.endereco_cep)
-        etree.SubElement(endereco, "UF").text = emitente.endereco_uf.strip()
+        etree.SubElement(endereco, "UF").text = emitente.endereco_uf
         if emitente.endereco_telefone:
-            etree.SubElement(endereco, "fone").text = emitente.endereco_telefone.strip()
+            etree.SubElement(endereco, "fone").text = emitente.endereco_telefone
         if emitente.endereco_email:
-            etree.SubElement(endereco, "email").text = emitente.endereco_email.strip()
+            etree.SubElement(endereco, "email").text = emitente.endereco_email
         if retorna_string:
             return etree.tostring(raiz, encoding="unicode", pretty_print=True)
         else:
@@ -2415,7 +2306,7 @@ class SerializacaoMDFe(Serializacao):
         if modal_rodoviario.contratante is not None:
             for num, item in enumerate(modal_rodoviario.contratante):
                 infContratante = etree.SubElement(infANTT, "infContratante")
-                etree.SubElement(infContratante, "xNome").text = item.nome.strip()
+                etree.SubElement(infContratante, "xNome").text = item.nome
                 if len(item.cpfcnpj) == 11:
                     etree.SubElement(infContratante, "CPF").text = item.cpfcnpj
                 elif len(item.cpfcnpj) == 14:
@@ -2507,9 +2398,9 @@ class SerializacaoMDFe(Serializacao):
                         ).text = item_reboque.proprietario.rntrc.zfill(8)
                     etree.SubElement(prop, "xNome").text = item_reboque.proprietario.nome
                     if item_reboque.proprietario.inscricao_estudual is not None:
-                        etree.SubElement(prop, "IE").text = (
-                            item_reboque.proprietario.inscricao_estudual
-                        )
+                        etree.SubElement(
+                            prop, "IE"
+                        ).text = item_reboque.proprietario.inscricao_estudual
                     etree.SubElement(prop, "UF").text = item_reboque.proprietario.uf
                     # tpProp: 0=TACAgregado; 1=TACIndependente; 2=Outros
                     etree.SubElement(prop, "tpProp").text = item_reboque.proprietario.tipo
@@ -2553,16 +2444,14 @@ class SerializacaoMDFe(Serializacao):
         raiz = etree.Element(tag_raiz)
 
         infResp = etree.SubElement(raiz, "infResp")
-        etree.SubElement(infResp, "respSeg").text = (
-            seguradora.responsavel_seguro.strip()
-        )
-        etree.SubElement(infResp, "CNPJ").text = seguradora.cnpj_responsavel.strip()
+        etree.SubElement(infResp, "respSeg").text = seguradora.responsavel_seguro
+        etree.SubElement(infResp, "CNPJ").text = seguradora.cnpj_responsavel
 
         infSeg = etree.SubElement(raiz, "infSeg")
-        etree.SubElement(infSeg, "xSeg").text = seguradora.nome_seguradora.strip()
-        etree.SubElement(infSeg, "CNPJ").text = seguradora.cnpj_seguradora.strip()
+        etree.SubElement(infSeg, "xSeg").text = seguradora.nome_seguradora
+        etree.SubElement(infSeg, "CNPJ").text = seguradora.cnpj_seguradora
 
-        etree.SubElement(raiz, "nApol").text = seguradora.numero_apolice.strip()
+        etree.SubElement(raiz, "nApol").text = seguradora.numero_apolice
 
         if len(seguradora.averbacoes) > 0:
             for num, item in enumerate(seguradora.averbacoes):
@@ -2576,9 +2465,9 @@ class SerializacaoMDFe(Serializacao):
     def _serializar_produto(self, produto, tag_raiz="prodPred", retorna_string=True):
         raiz = etree.Element(tag_raiz)
         etree.SubElement(raiz, "tpCarga").text = produto.tipo_carga
-        etree.SubElement(raiz, "xProd").text = produto.nome_produto.strip()
-        etree.SubElement(raiz, "cEAN").text = produto.cean.strip()
-        etree.SubElement(raiz, "NCM").text = produto.ncm.strip()
+        etree.SubElement(raiz, "xProd").text = produto.nome_produto
+        etree.SubElement(raiz, "cEAN").text = produto.cean
+        etree.SubElement(raiz, "NCM").text = produto.ncm
 
         if retorna_string:
             return etree.tostring(raiz, encoding="unicode", pretty_print=True)
@@ -2620,10 +2509,10 @@ class SerializacaoMDFe(Serializacao):
         self, responsavel_tecnico, tag_raiz="infRespTec", retorna_string=True
     ):
         raiz = etree.Element(tag_raiz)
-        etree.SubElement(raiz, "CNPJ").text = responsavel_tecnico.cnpj.strip()
-        etree.SubElement(raiz, "xContato").text = responsavel_tecnico.contato.strip()
-        etree.SubElement(raiz, "email").text = responsavel_tecnico.email.strip()
-        etree.SubElement(raiz, "fone").text = responsavel_tecnico.fone.strip()
+        etree.SubElement(raiz, "CNPJ").text = responsavel_tecnico.cnpj
+        etree.SubElement(raiz, "xContato").text = responsavel_tecnico.contato
+        etree.SubElement(raiz, "email").text = responsavel_tecnico.email
+        etree.SubElement(raiz, "fone").text = responsavel_tecnico.fone
 
         if retorna_string:
             return etree.tostring(raiz, encoding="unicode", pretty_print=True)
@@ -2663,9 +2552,9 @@ class SerializacaoMDFe(Serializacao):
         )
         etree.SubElement(ide, "tpEmis").text = str(manifesto.forma_emissao)
         etree.SubElement(ide, "procEmi").text = str(manifesto.processo_emissao)
-        etree.SubElement(ide, "verProc").text = (
-            f"{self._nome_aplicacao} {manifesto.versao_processo_emissao}"
-        )
+        etree.SubElement(
+            ide, "verProc"
+        ).text = f"{self._nome_aplicacao} {manifesto.versao_processo_emissao}"
         etree.SubElement(ide, "UFIni").text = manifesto.UFIni
         etree.SubElement(ide, "UFFim").text = manifesto.UFFim
 
@@ -2718,13 +2607,13 @@ class SerializacaoMDFe(Serializacao):
         ):
             info_ad = etree.SubElement(raiz, "infAdic")
             if manifesto.informacoes_adicionais_interesse_fisco:
-                etree.SubElement(info_ad, "infAdFisco").text = (
-                    manifesto.informacoes_adicionais_interesse_fisco
-                )
+                etree.SubElement(
+                    info_ad, "infAdFisco"
+                ).text = manifesto.informacoes_adicionais_interesse_fisco
             if manifesto.informacoes_complementares_interesse_contribuinte:
-                etree.SubElement(info_ad, "infCpl").text = (
-                    manifesto.informacoes_complementares_interesse_contribuinte
-                )
+                etree.SubElement(
+                    info_ad, "infCpl"
+                ).text = manifesto.informacoes_complementares_interesse_contribuinte
 
         # Responsavel Tecnico NT2018/003
         if manifesto.responsavel_tecnico:

@@ -172,9 +172,6 @@ class NotaFiscal(Entidade):
     # - Produtos e Servicos (lista 1 para * / ManyToManyField)
     produtos_e_servicos = None
 
-    # - Pagamentos (lista 1 para * / ManyToManyField)
-    tipo_pagamentos = None
-
     # Totais
     # - ICMS
     #  - Base de calculo (somente leitura)
@@ -223,7 +220,7 @@ class NotaFiscal(Entidade):
     totais_icms_cofins = Decimal()
 
     #  - Outras despesas acessorias
-    totais_icms_outras_despesas = Decimal()
+    totais_icms_outras_despesas_acessorias = Decimal()
 
     #  - Total da nota
     totais_icms_total_nota = Decimal()
@@ -380,10 +377,6 @@ class NotaFiscal(Entidade):
     # - Duplicatas (lista 1 para * / ManyToManyField)
     duplicatas = None
 
-    informacoes_intermediador_transacao_cnpj = str()
-
-    informacoes_intermediador_transacao_identificador = str()
-
     # Informacoes Adicionais
     # - Informacoes Adicionais
     #  - Informacoes adicionais de interesse do fisco
@@ -454,7 +447,7 @@ class NotaFiscal(Entidade):
         self.totais_icms_total_ipi_dev += obj.ipi_valor_ipi_dev
         self.totais_icms_pis += obj.pis_valor
         self.totais_icms_cofins += obj.cofins_valor
-        self.totais_icms_outras_despesas += obj.outras_despesas
+        self.totais_icms_outras_despesas_acessorias += obj.outras_despesas_acessorias
         # - Valor Total do FCP (Fundo de Combate à Pobreza)
         self.totais_fcp += obj.fcp_valor
         self.totais_fcp_destino += obj.fcp_destino_valor
@@ -480,7 +473,7 @@ class NotaFiscal(Entidade):
             + obj.fcp_st_valor
             + obj.total_frete
             + obj.total_seguro
-            + obj.outras_despesas
+            + obj.outras_despesas_acessorias
             + obj.imposto_importacao_valor
             + obj.ipi_valor_ipi
             + obj.ipi_valor_ipi_dev
@@ -519,23 +512,6 @@ class NotaFiscal(Entidade):
         obj = NotaFiscalResponsavelTecnico(**kwargs)
         self.responsavel_tecnico.append(obj)
         return obj
-
-    def adicionar_transportadora(self, **kwargs):
-        """Adiciona uma instancia de Transportadora"""
-        obj = NotaFiscalTransportadora(**kwargs)
-        self.transporte_transportadora = obj
-        return obj
-
-    def adicionar_pagamento(self, **kwargs):
-        """Adiciona uma instancia de Pagamento"""
-        obj = Pagamento(**kwargs)
-        self.tipo_pagamentos.append(obj)
-        return obj
-
-    def adicionar_campo_uso_livre_contribuinte(self, **kwargs):
-        """Adiciona uma instancia de Produto"""
-        obj = NotaFiscalProduto(**kwargs)
-        self.produtos_e_servicos.append(obj)
 
     def _codigo_numerico_aleatorio(self):
         if not self.codigo_numerico_aleatorio:
@@ -667,13 +643,11 @@ class NotaFiscalProduto(Entidade):
     #  - Valor Unitario Comercial (obrigatorio)
     valor_unitario_comercial = Decimal()
 
-    valor_tributos_aprox = Decimal()
-
     #  - Unidade Tributavel (obrigatorio)
     unidade_tributavel = str()
 
     # - cBenef
-    codigo_beneficio_fiscal = str()
+    cbenef = str()
 
     #  - Quantidade Tributavel (obrigatorio)
     quantidade_tributavel = Decimal()
@@ -694,7 +668,7 @@ class NotaFiscalProduto(Entidade):
     desconto = Decimal()
 
     # - Outras despesas acessórias
-    outras_despesas = Decimal()
+    outras_despesas_acessorias = Decimal()
 
     # - Indica se valor do Item (vProd) entra no valor total da NF-e
     compoe_valor_total = 1
@@ -1253,16 +1227,6 @@ class NotaFiscalResponsavelTecnico(Entidade):
     email = str()
     fone = str()
     csrt = str()
-
-
-class NotaFiscalTransportadora(Entidade):
-    numero_documento = str()
-    tipo_documento = str()
-    razao_social = str()
-    inscricao_estadual = str()
-    endereco_logradouro = str()
-    endereco_municipio = str()
-    endereco_uf = str()
 
 
 class AutorizadosBaixarXML(Entidade):

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import datetime
 import re
-import os
 
 import requests
 
@@ -27,10 +26,6 @@ from pynfe.utils.flags import (
 from pynfe.utils.webservices import CTE, MDFE, NFCE, NFE, NFSE
 
 from .assinatura import AssinaturaA1
-
-TIMEOUT = int(os.getenv("TIMEOUT", 15))
-TIMEOUT_MDFE = int(os.getenv("TIMEOUT_MDFE", 50))
-TIMEOUT_CTE = int(os.getenv("TIMEOUT_CTE", 300))
 
 
 class Comunicacao(object):
@@ -120,10 +115,10 @@ class ComunicacaoSefaz(Comunicacao):
                             )
                             raiz.append(nota_fiscal)
                             raiz.append(prot_nfe)
-                            return 0, raiz, nota_fiscal, xml
+                            return 0, raiz
                 except IndexError:
                     # Protocolo com algum erro no Envio
-                    return 1, retorno, nota_fiscal, xml
+                    return 1, retorno, nota_fiscal
             else:
                 # Retorna id do protocolo para posterior consulta em caso de sucesso.
                 rec = prot[0][0]
@@ -157,8 +152,7 @@ class ComunicacaoSefaz(Comunicacao):
 
         # Monta XML para envio da requisição
         xml = self._construir_xml_soap("NFeRetAutorizacao4", raiz)
-
-        return self._post(url, xml), xml
+        return self._post(url, xml)
 
     def consulta_nota(self, modelo, chave, contingencia=False):
         """
@@ -178,8 +172,7 @@ class ComunicacaoSefaz(Comunicacao):
         etree.SubElement(raiz, "chNFe").text = chave
         # Monta XML para envio da requisição
         xml = self._construir_xml_soap("NFeConsultaProtocolo4", raiz)
-
-        return self._post(url, xml), xml
+        return self._post(url, xml)
 
     def consulta_distribuicao(
         self, cnpj=None, cpf=None, chave=None, nsu=0, consulta_nsu_especifico=False
@@ -235,7 +228,7 @@ class ComunicacaoSefaz(Comunicacao):
         # Monta XML para envio da requisição
         xml = self._construir_xml_soap("NFeDistribuicaoDFe", raiz)
 
-        return self._post(url, xml), xml
+        return self._post(url, xml)
 
     def consulta_cadastro(self, modelo, documento, tipo="CNPJ", uf=None):
         """
@@ -296,7 +289,7 @@ class ComunicacaoSefaz(Comunicacao):
         # Monta XML para envio da requisição
         xml = self._construir_xml_soap("CadConsultaCadastro4", raiz)
         # Chama método que efetua a requisição POST no servidor SOAP
-        return self._post(url, xml), xml
+        return self._post(url, xml)
 
     def evento(self, modelo, evento, id_lote=1):
         """
@@ -322,12 +315,9 @@ class ComunicacaoSefaz(Comunicacao):
         etree.SubElement(raiz, "idLote").text = str(
             id_lote
         )  # numero autoincremental gerado pelo sistema
-
         raiz.append(evento)
-
         xml = self._construir_xml_soap("NFeRecepcaoEvento4", raiz)
-
-        return self._post(url, xml), xml
+        return self._post(url, xml)
 
     def status_servico(self, modelo, timeout=None):
         """
@@ -417,7 +407,7 @@ class ComunicacaoSefaz(Comunicacao):
         # Monta XML para envio da requisição
         xml = self._construir_xml_soap("NFeInutilizacao4", xml)
         # Faz request no Servidor da Sefaz e retorna resposta
-        return self._post(url, xml), xml
+        return self._post(url, xml)
 
     def _get_url_an(self, consulta):
         # producao
@@ -487,7 +477,7 @@ class ComunicacaoSefaz(Comunicacao):
             return self.url
 
         # estado que implementam webservices proprios
-        lista = ["PR", "MS", "SP", "AM", "BA", "GO", "MG", "MT", "PE", "RS"]
+        lista = ["PR", "MS", "SP", "AM", "CE", "BA", "GO", "MG", "MT", "PE", "RS"]
         if self.uf.upper() in lista:
             if self._ambiente == 1:
                 ambiente = "HTTPS"
@@ -527,7 +517,6 @@ class ComunicacaoSefaz(Comunicacao):
                 "SE",
                 "TO",
                 "PA",
-                "CE"
             ]
             if self.uf.upper() in lista_svrs:
                 if self._ambiente == 1:
@@ -1098,7 +1087,7 @@ class ComunicacaoMDFe(Comunicacao):
                 headers=self._post_header(),
                 cert=chave_cert,
                 verify=False,
-                timeout=TIMEOUT_MDFE,
+                timeout=50,
             )
             result.encoding = "utf-8"
             return result
@@ -1319,8 +1308,8 @@ class ComunicacaoCTe(Comunicacao):
         response = {
             "content-type": "application/soap+xml; charset=utf-8;",
             "Accept": "application/soap+xml; charset=utf-8;",
-            "SOAPAction": "",
         }
+        response["SOAPAction"] = ""
         return response
 
     def _post(self, url, xml):
@@ -1346,7 +1335,7 @@ class ComunicacaoCTe(Comunicacao):
                 headers=self._post_header(),
                 cert=chave_cert,
                 verify=False,
-                timeout=TIMEOUT_CTE,
+                timeout=300,
             )
             result.encoding = "utf-8"
             return result
