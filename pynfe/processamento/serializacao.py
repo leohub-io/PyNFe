@@ -17,6 +17,7 @@ from pynfe.utils.flags import (
     VERSAO_QRCODE,
 )
 from pynfe.utils.webservices import NFCE, MDFE
+from fastapi import HTTPException
 import base64
 import hashlib
 from datetime import datetime
@@ -1585,6 +1586,7 @@ class SerializacaoXML(Serializacao):
 
         # Itens
         for num, item in enumerate(nota_fiscal.produtos_e_servicos):
+            raise HTTPException(status_code=400, detail=item)
             det = self._serializar_produto_servico(
                 item, modelo=nota_fiscal.modelo, retorna_string=False
             )
