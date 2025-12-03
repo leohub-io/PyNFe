@@ -464,7 +464,10 @@ class NotaFiscal(Entidade):
         """Adiciona uma instancia de Pagamento"""
         obj = Pagamento(**kwargs)
         self.tipo_pagamentos.append(obj)
-        logging.debug(obj)
+        logger = logging.getLogger(__name__)
+
+        logger.debug(obj)
+
         return obj
 
     def adicionar_campo_uso_livre_contribuinte(self, **kwargs):
