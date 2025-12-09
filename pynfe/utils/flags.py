@@ -26,6 +26,7 @@ VERSAO_QRCODE = "2"
 TIPOS_DOCUMENTO = (
     "CNPJ",
     "CPF",
+    "idEstrangeiro"
 )
 
 XSD_FOLDER_NFE = "pynfe/data/XSDs/NF-e"
