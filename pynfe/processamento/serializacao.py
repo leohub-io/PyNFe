@@ -1484,7 +1484,11 @@ class SerializacaoXML(Serializacao):
         etree.SubElement(ide, "finNFe").text = str(nota_fiscal.finalidade_emissao)
         if nota_fiscal.modelo == 65:
             etree.SubElement(ide, "indFinal").text = str(1)
-            etree.SubElement(ide, "indPres").text = str(nota_fiscal.indicador_presencial)
+            indicador_presencial = 1
+            if nota_fiscal.indicador_presencial: # para estados onde o indicador presencial da NFC-e pode variar (RS e CE, por exemplo)
+                indicador_presencial = nota_fiscal.indicador_presencial
+                
+            etree.SubElement(ide, "indPres").text = str(indicador_presencial)
         else:
             etree.SubElement(ide, "indFinal").text = str(nota_fiscal.cliente_final)
             etree.SubElement(ide, "indPres").text = str(nota_fiscal.indicador_presencial)
