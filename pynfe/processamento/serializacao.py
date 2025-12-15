@@ -149,7 +149,11 @@ class SerializacaoXML(Serializacao):
         raiz = etree.Element(tag_raiz)
 
         # Dados do cliente (destinatário)
-        etree.SubElement(raiz, cliente.tipo_documento).text = so_numeros(cliente.numero_documento)
+        documento = so_numeros(cliente.numero_documento)
+        if cliente.tipo_documento == 'idEstrangeiro':
+            documento = cliente.numero_documento
+
+        etree.SubElement(raiz, cliente.tipo_documento).text = documento
         if not self._so_cpf:
             if cliente.razao_social:
                 etree.SubElement(raiz, "xNome").text = cliente.razao_social
