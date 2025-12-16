@@ -120,6 +120,7 @@ NFCE = {
         "QR": "http://nfce.set.rn.gov.br/consultarNFCe.aspx?",
         "HTTPS": "",
         "HOMOLOGACAO": "",
+        "URL": "http://nfce.set.rn.gov.br/consultarNFCe.aspx"
     },
     "PB": {
         "STATUS": "",
