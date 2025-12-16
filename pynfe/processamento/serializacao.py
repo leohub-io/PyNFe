@@ -163,7 +163,7 @@ class SerializacaoXML(Serializacao):
             etree.SubElement(endereco, "nro").text = cliente.endereco_numero or 'Não informado'
             if cliente.endereco_complemento:
                 etree.SubElement(endereco, "xCpl").text = cliente.endereco_complemento
-            etree.SubElement(endereco, "xBairro").text = cliente.endereco_bairro
+            etree.SubElement(endereco, "xBairro").text = cliente.endereco_bairro or 'Não informado'
             etree.SubElement(endereco, "cMun").text = obter_codigo_por_municipio(
                 cliente.endereco_municipio, cliente.endereco_uf
             )
