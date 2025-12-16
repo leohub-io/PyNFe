@@ -106,9 +106,6 @@ def carregar_arquivo_municipios(uf, reverso=False):
 # @memoize
 def obter_codigo_por_municipio(municipio, uf):
     # TODO: fazer UF ser opcional
-    if not uf:
-        return ''
-
     municipios = carregar_arquivo_municipios(uf, True)
     municipio_normalizado = normalizar_municipio(municipio)
     if municipio_normalizado not in municipios:
@@ -119,9 +116,6 @@ def obter_codigo_por_municipio(municipio, uf):
 # @memoize
 def obter_municipio_por_codigo(codigo, uf, normalizado=False):
     # TODO: fazer UF ser opcional
-    if not uf:
-        return ''
-
     municipios = carregar_arquivo_municipios(uf)
     municipio = municipios.get(codigo)
     if municipio is None:
