@@ -154,9 +154,10 @@ class SerializacaoXML(Serializacao):
             documento = cliente.numero_documento
 
         etree.SubElement(raiz, cliente.tipo_documento).text = documento
+        if cliente.razao_social:
+            etree.SubElement(raiz, "xNome").text = cliente.razao_social
         if not self._so_cpf:
-            if cliente.razao_social:
-                etree.SubElement(raiz, "xNome").text = cliente.razao_social
+
             endereco = etree.SubElement(raiz, "enderDest")
             etree.SubElement(endereco, "xLgr").text = cliente.endereco_logradouro
             etree.SubElement(endereco, "nro").text = cliente.endereco_numero
