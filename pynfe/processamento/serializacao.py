@@ -1753,6 +1753,39 @@ class SerializacaoXML(Serializacao):
                 nota_fiscal.totais_tributos_aproximado
             )
 
+        if nota_fiscal.totais_imposto_seletivo:
+            istot = etree.SubElement(total, "ISTot")
+            etree.SubElement(istot, "vIS").text = "{:.2f}".format(nota_fiscal.totais_imposto_seletivo)
+
+        if nota_fiscal.totais_ibs_cbs_base_calculo:
+            ibscbstot = etree.SubElement(total, "IBSCTot")
+            etree.SubElement(ibscbstot, "vBCIBSCBS").text = "{:.2f}".format(nota_fiscal.totais_ibs_cbs_base_calculo)
+
+            gibs = etree.SubElement(ibscbstot, "gIBS")
+            gibsuf = etree.SubElement(gibs, "gIBSUF")
+            etree.SubElement(gibsuf, "vIBSUF").text = "{:.2f}".format(nota_fiscal.totais_ibs_uf)
+            etree.SubElement(gibsuf, "vDif").text = "{:.2f}".format(0)
+            etree.SubElement(gibsuf, "vDevTrib").text = "{:.2f}".format(0)
+
+            gibsmun = etree.SubElement(gibs, "gIBSMun")
+            etree.SubElement(gibsmun, "vIBSMun").text = "{:.2f}".format(nota_fiscal.totais_ibs_mun)
+            etree.SubElement(gibsmun, "vDif").text = "{:.2f}".format(0)
+            etree.SubElement(gibsmun, "vDevTrib").text = "{:.2f}".format(0)
+
+            etree.SubElement(gibs, "vIBS").text = "{:.2f}".format(nota_fiscal.totais_ibs)
+            etree.SubElement(gibs, "vCredPres").text = "{:.2f}".format(0)
+            etree.SubElement(gibs, "vCredPresCondSus").text = "{:.2f}".format(0)
+
+
+            gcbs = etree.SubElement(ibscbstot, "gCBS")
+            etree.SubElement(gcbs, "vCBS").text = "{:.2f}".format(nota_fiscal.totais_ibs_mun)
+            etree.SubElement(gibsmun, "vDif").text = "{:.2f}".format(0)
+            etree.SubElement(gibsmun, "vDevTrib").text = "{:.2f}".format(0)
+            etree.SubElement(gibsmun, "vCredPres").text = "{:.2f}".format(0)
+            etree.SubElement(gibsmun, "vCredPresCondSus").text = "{:.2f}".format(0)
+
+
+
         # Transporte
         transp = etree.SubElement(raiz, "transp")
         etree.SubElement(transp, "modFrete").text = str(nota_fiscal.transporte_modalidade_frete)
