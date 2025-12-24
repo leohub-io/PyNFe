@@ -304,7 +304,7 @@ class NotaFiscal(Entidade):
     
     # - IS
     #  - Valor total do Imposto Seletivo
-    totais_is = Decimal()
+    totais_imposto_seletivo = Decimal()
 
     # - IBSCBS
     totais_ibs_cbs_base_calculo = Decimal()
@@ -488,7 +488,7 @@ class NotaFiscal(Entidade):
         self.totais_icms_v_icms_mono_ret += obj.icms_v_icms_mono_ret
         
         # - IS - Imposto seletivo
-        self.totais_is += obj.is_valor
+        self.totais_imposto_seletivo += obj.imposto_seletivo_valor
 
         # - IBS e CBS
         self.totais_ibs_cbs_base_calculo = obj.ibs_cbs_valor_base_calculo
@@ -1041,19 +1041,19 @@ class NotaFiscalProduto(Entidade):
 
     #  - Imposto Seletivo IS
     #   - Código Situação Tributária do IS - CSTIS
-    is_modalidade  = str()
+    imposto_seletivo_modalidade  = str()
     
-    #   - Código Classificação Tributária do IS - cClassTribIs
-    is_cod_class_trib = str()
+    #   - Código Classificação Tributária do IS - cClassTribIS
+    imposto_selectivo_cod_class_tributaria = str()
     
     #   - Valor da base de cálculo do IS - vBCIS
-    is_valor_base_calculo  = str()
+    imposto_seletivo_valor_base_calculo  = str()
     
     #   - Aliquota do IS - pIS
-    is_aliquota_percentual = str()
+    imposto_seletivo_aliquota_percentual = str()
     
     #   - Valor do IS - vIS
-    is_valor = str()
+    imposto_seletivo_valor = str()
 
     #  - Imposto sobre Bens e Serviços IBS e Contribuição sobre Bens e Serviços CBS - tag IBSCBS
     #   - Código Situação Tributária - CST
