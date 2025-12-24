@@ -301,6 +301,20 @@ class NotaFiscal(Entidade):
 
     # - Valor total do ICMS monofásico sujeito a retenção
     totais_icms_v_icms_mono_reten = Decimal()
+    # - Valor total do Imposto Seletivo
+    totais_is = Decimal()
+
+    # - Valor total Imposto sobre Bens e Serviços - UF
+    totais_ibs_uf = Decimal()
+
+    # - Valor total Imposto sobre Bens e Serviços - Municipal
+    totais_ibs_mun = Decimal()
+
+    # - Valor total Imposto sobre Bens e Serviços
+    totais_ibs = Decimal()
+
+    # - Valor total da Contribuição sobre Bens e Serviços
+    totais_cbs = Decimal()
 
     # Transporte
     # - Modalidade do Frete (obrigatorio - seleciona de lista) - MODALIDADES_FRETE

@@ -135,6 +135,33 @@ class Produto(Entidade):
     fcp_percentual = Decimal()
     fcp_valor = Decimal()
 
+    # # Imposto Seletivo IS
+    is_modalidade  = str()
+    is_cod_class_trib = str()
+    is_valor_base_calculo  = str()
+    is_aliquota_percentual = str()
+    is_valor = str()
+
+    # # Imposto sobre Bens e Serviços IBS e Contribuição sobre Bens e Serviços CBS
+    ibs_cbs_modalidade = str()
+    ibs_cbs_cod_class_trib = str()
+    ibs_cbs_valor_base_calculo = str()
+
+    # # # IBS
+    ibs_valor = str()
+
+    # # # IBS - UF
+    ibs_uf_aliquota_percentual = str()
+    ibs_uf_valor = str()
+
+    # # # IBS - Municipal
+    ibs_mun_aliquota_percentual = str()
+    ibs_mun_valor = str()
+
+    # # # CBS
+    cbs_aliquota_percentual = str()
+    cbs_valor = str()
+
     # # - ICMS (lista 1 para * / ManyToManyField)
     icms = None
 
