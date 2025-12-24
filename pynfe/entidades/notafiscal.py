@@ -302,19 +302,27 @@ class NotaFiscal(Entidade):
     # - Valor total do ICMS monofásico sujeito a retenção
     totais_icms_v_icms_mono_reten = Decimal()
     
-    # - Valor total do Imposto Seletivo
+    # - IS
+    #  - Valor total do Imposto Seletivo
     totais_is = Decimal()
 
-    # - Valor total Imposto sobre Bens e Serviços - UF
+    # - IBSCBS
+    totais_ibs_cbs_base_calculo = Decimal()
+    
+    #  - IBS
+    #   - IBSUF
+    #    - Valor total IBS UF
     totais_ibs_uf = Decimal()
 
-    # - Valor total Imposto sobre Bens e Serviços - Municipal
+    #   - IBSMUN
+    #    - Valor total IBS Mun
     totais_ibs_mun = Decimal()
 
-    # - Valor total Imposto sobre Bens e Serviços
+    #   - Total IBS
     totais_ibs = Decimal()
 
-    # - Valor total da Contribuição sobre Bens e Serviços
+    #  - CBS 
+    #   - Valor total da Contribuição sobre Bens e Serviços
     totais_cbs = Decimal()
 
     # Transporte
@@ -478,6 +486,20 @@ class NotaFiscal(Entidade):
         self.totais_icms_v_icms_mono_reten += obj.icms_v_icms_mono_reten
         self.totais_icms_q_bc_mono_ret += obj.icms_q_bc_mono_ret
         self.totais_icms_v_icms_mono_ret += obj.icms_v_icms_mono_ret
+        
+        # - IS - Imposto seletivo
+        self.totais_is += obj.is_valor
+
+        # - IBS e CBS
+        self.totais_ibs_cbs_base_calculo = obj.ibs_cbs_valor_base_calculo
+                
+        # - IBS
+        self.totais_ibs += obj.ibs_valor
+        self.totais_ibs_uf += obj.ibs_uf_valor
+        self.totais_ibs_mun += obj.ibs_mun_valor
+        
+        # - CBS
+        self.totais_cbs += obj.cbs_valor
 
         # TODO calcular impostos aproximados
         # self.totais_tributos_aproximado += obj.tributos
