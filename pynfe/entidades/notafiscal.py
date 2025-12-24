@@ -301,6 +301,7 @@ class NotaFiscal(Entidade):
 
     # - Valor total do ICMS monofásico sujeito a retenção
     totais_icms_v_icms_mono_reten = Decimal()
+    
     # - Valor total do Imposto Seletivo
     totais_is = Decimal()
 
@@ -1015,6 +1016,58 @@ class NotaFiscalProduto(Entidade):
 
     #   - Valor imposto de importacao
     imposto_importacao_valor = Decimal()
+
+    #  - Imposto Seletivo IS
+    #   - Código Situação Tributária do IS - CSTIS
+    is_modalidade  = str()
+    
+    #   - Código Classificação Tributária do IS - cClassTribIs
+    is_cod_class_trib = str()
+    
+    #   - Valor da base de cálculo do IS - vBCIS
+    is_valor_base_calculo  = str()
+    
+    #   - Aliquota do IS - pIS
+    is_aliquota_percentual = str()
+    
+    #   - Valor do IS - vIS
+    is_valor = str()
+
+    #  - Imposto sobre Bens e Serviços IBS e Contribuição sobre Bens e Serviços CBS - tag IBSCBS
+    #   - Código Situação Tributária - CST
+    ibs_cbs_modalidade = str()
+    
+    #   - Código Classificação Tributária - cCLassTrib
+    ibs_cbs_cod_class_trib = str()
+    
+    #   - Grupo IBS e CBS - gIBSCBS
+    #    - Base de cálculo IBS e CBS - vBC
+    ibs_cbs_valor_base_calculo = str()
+
+    #    - Valor do IBS - vIBS
+    ibs_valor = str()
+
+    #   - Grupo IBS - UF - gIBSUF
+    #    - Aliquota IBS UF
+    ibs_uf_aliquota_percentual = str()
+    
+    #    - Valor IBS UF
+    ibs_uf_valor = str()
+
+    #   - Grupo IBS - Municipal - gIBSMun
+    #    - Aliquota IBS Municipal
+    ibs_mun_aliquota_percentual = str()
+    
+    #    - Valor IBS Municipal
+    ibs_mun_valor = str()
+
+    #   - Grupo CBS - gCBS
+    #    - Aliquota CBS   
+    cbs_aliquota_percentual = str()
+    
+    #    - Valor CBS 
+    cbs_valor = str()
+
 
     # - Informacoes Adicionais
     #  - Texto livre de informacoes adicionais
