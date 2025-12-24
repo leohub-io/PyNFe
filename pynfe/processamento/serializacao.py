@@ -443,6 +443,17 @@ class SerializacaoXML(Serializacao):
             retorna_string=False,
         )
 
+        # Imposto Seletivo IS
+        self._serializar_imposto_seletivo(
+            produto_servico=produto_servico,
+            modelo=modelo,
+            tag_raiz=imposto,
+            retorna_string=False,
+        )
+
+        # Imposto Bens e Serviços e Contribuição Bens e Serviços
+        self._serializar_ibs_cbs()
+
         # tag impostoDevol
         if produto_servico.ipi_valor_ipi_dev:
             impostodevol = etree.SubElement(raiz, "impostoDevol")
@@ -1272,6 +1283,49 @@ class SerializacaoXML(Serializacao):
             # etree.SubElement(cofins_item, 'vAliqProd').text = produto_servico
             #   .cofins_aliquota_percentual
             # etree.SubElement(cofins_item, 'vCOFINS').text = produto_servico.cofins_valor
+
+    def _serializar_imposto_seletivo(
+            self, produto_servico, modelo, tag_raiz="imposto", retorna_string=True
+    ):
+        if produto_servico.imposto_seletivo_valor == 0:
+            return
+
+        imposto_seletivo = etree.SubElement(tag_raiz, "IS")
+        etree.SubElement(imposto_seletivo, "CSTIS").text = produto_servico.imposto_seletivo_modalidade
+        etree.SubElement(imposto_seletivo, "cClassTribIS").text = produto_servico.imposto_seletivo_cod_class_trib
+        etree.SubElement(imposto_seletivo, "vBCIS").text = "{:.2f}".format(
+            produto_servico.imposto_seletivo_valor_base_calculo
+        )
+        etree.SubElement(imposto_seletivo, "pIS").text = "{:.2f}".format(
+            produto_servico.imposto_seletivo_aliquota_percentual
+        )
+        etree.SubElement(imposto_seletivo, "vIS").text = "{:.2f}".format(produto_servico.imposto_seletivo_valor)
+
+    def _serializar_ibs_cbs(
+            self, produto_servico, modelo, tag_raiz="imposto", retorna_string=True
+    ):
+        if produto_servico.ibs_cbs_valor_base_calculo == 0:
+            return
+
+        ibscbs_item = etree.SubElement(tag_raiz, "IBSCBS")
+        etree.SubElement(ibscbs_item, "CST").text = produto_servico.ibs_cbs_modalidade
+        etree.SubElement(ibscbs_item, "cClassTrib").text = produto_servico.ibs_cbs_cod_class_trib
+
+        grupo_ibscbs_item = etree.SubElement(ibscbs_item, "gIBSCBS")
+        etree.SubElement(grupo_ibscbs_item, "vBC").text = "{:.2f}".format(produto_servico.ibs_cbs_valor_base_calculo)
+        etree.SubElement(grupo_ibscbs_item, "vIBS").text = "{:.2f}".format(produto_servico.ibs_valor)
+
+        grupo_ibsuf_item = etree.SubElement(grupo_ibscbs_item, "gIBSUF")
+        etree.SubElement(grupo_ibsuf_item, "pIBSUF").text = "{:.2f}".format(produto_servico.ibs_uf_aliquota_percentual)
+        etree.SubElement(grupo_ibsuf_item, "vIBSUF").text = "{:.2f}".format(produto_servico.ibs_uf_valor)
+
+        grupo_ibsmun_item = etree.SubElement(grupo_ibscbs_item, "gIBSMun")
+        etree.SubElement(grupo_ibsmun_item, "pIBSMun").text = "{:.2f}".format(produto_servico.ibs_mun_aliquota_percentual)
+        etree.SubElement(grupo_ibsmun_item, "vIBSMun").text = "{:.2f}".format(produto_servico.ibs_mun_valor)
+
+        grupo_cbs_item = etree.SubElement(grupo_ibscbs_item, "gCBS")
+        etree.SubElement(grupo_cbs_item, "pCBS").text = "{:.2f}".format(produto_servico.cbs_aliquota_percentual)
+        etree.SubElement(grupo_cbs_item, "vCBS").text = "{:.2f}".format(produto_servico.cbs_valor)
 
     def _serializar_imposto_importacao(
         self, produto_servico, modelo, tag_raiz="imposto", retorna_string=True

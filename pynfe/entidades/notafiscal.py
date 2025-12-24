@@ -1044,7 +1044,7 @@ class NotaFiscalProduto(Entidade):
     imposto_seletivo_modalidade  = str()
     
     #   - Código Classificação Tributária do IS - cClassTribIS
-    imposto_selectivo_cod_class_tributaria = str()
+    imposto_seletivo_cod_class_trib = str()
     
     #   - Valor da base de cálculo do IS - vBCIS
     imposto_seletivo_valor_base_calculo  = str()
