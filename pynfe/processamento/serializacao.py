@@ -1762,7 +1762,7 @@ class SerializacaoXML(Serializacao):
             etree.SubElement(istot, "vIS").text = "{:.2f}".format(nota_fiscal.totais_imposto_seletivo)
 
         if nota_fiscal.totais_ibs_cbs_base_calculo:
-            ibscbstot = etree.SubElement(total, "IBSCTot")
+            ibscbstot = etree.SubElement(total, "IBSCBSTot")
             etree.SubElement(ibscbstot, "vBCIBSCBS").text = "{:.2f}".format(nota_fiscal.totais_ibs_cbs_base_calculo)
 
             gibs = etree.SubElement(ibscbstot, "gIBS")
