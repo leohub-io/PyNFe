@@ -1317,7 +1317,6 @@ class SerializacaoXML(Serializacao):
 
         grupo_ibscbs_item = etree.SubElement(ibscbs_item, "gIBSCBS")
         etree.SubElement(grupo_ibscbs_item, "vBC").text = "{:.2f}".format(produto_servico.ibs_cbs_valor_base_calculo)
-        etree.SubElement(grupo_ibscbs_item, "vIBS").text = "{:.2f}".format(produto_servico.ibs_valor)
 
         grupo_ibsuf_item = etree.SubElement(grupo_ibscbs_item, "gIBSUF")
         etree.SubElement(grupo_ibsuf_item, "pIBSUF").text = "{:.4f}".format(produto_servico.ibs_uf_aliquota_percentual)
@@ -1326,6 +1325,8 @@ class SerializacaoXML(Serializacao):
         grupo_ibsmun_item = etree.SubElement(grupo_ibscbs_item, "gIBSMun")
         etree.SubElement(grupo_ibsmun_item, "pIBSMun").text = "{:.4f}".format(produto_servico.ibs_mun_aliquota_percentual)
         etree.SubElement(grupo_ibsmun_item, "vIBSMun").text = "{:.2f}".format(produto_servico.ibs_mun_valor)
+
+        etree.SubElement(grupo_ibscbs_item, "vIBS").text = "{:.2f}".format(produto_servico.ibs_valor)
 
         grupo_cbs_item = etree.SubElement(grupo_ibscbs_item, "gCBS")
         etree.SubElement(grupo_cbs_item, "pCBS").text = "{:.4f}".format(produto_servico.cbs_aliquota_percentual)
