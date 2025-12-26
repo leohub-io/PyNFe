@@ -1768,25 +1768,25 @@ class SerializacaoXML(Serializacao):
 
             gibs = etree.SubElement(ibscbstot, "gIBS")
             gibsuf = etree.SubElement(gibs, "gIBSUF")
-            etree.SubElement(gibsuf, "vIBSUF").text = "{:.2f}".format(nota_fiscal.totais_ibs_uf)
             etree.SubElement(gibsuf, "vDif").text = "{:.2f}".format(0)
             etree.SubElement(gibsuf, "vDevTrib").text = "{:.2f}".format(0)
+            etree.SubElement(gibsuf, "vIBSUF").text = "{:.2f}".format(nota_fiscal.totais_ibs_uf)
 
             gibsmun = etree.SubElement(gibs, "gIBSMun")
-            etree.SubElement(gibsmun, "vIBSMun").text = "{:.2f}".format(nota_fiscal.totais_ibs_mun)
             etree.SubElement(gibsmun, "vDif").text = "{:.2f}".format(0)
             etree.SubElement(gibsmun, "vDevTrib").text = "{:.2f}".format(0)
+            etree.SubElement(gibsmun, "vIBSMun").text = "{:.2f}".format(nota_fiscal.totais_ibs_mun)
 
             etree.SubElement(gibs, "vIBS").text = "{:.2f}".format(nota_fiscal.totais_ibs)
             etree.SubElement(gibs, "vCredPres").text = "{:.2f}".format(0)
             etree.SubElement(gibs, "vCredPresCondSus").text = "{:.2f}".format(0)
 
             gcbs = etree.SubElement(ibscbstot, "gCBS")
-            etree.SubElement(gcbs, "vCBS").text = "{:.2f}".format(nota_fiscal.totais_ibs_mun)
-            etree.SubElement(gibsmun, "vDif").text = "{:.2f}".format(0)
-            etree.SubElement(gibsmun, "vDevTrib").text = "{:.2f}".format(0)
-            etree.SubElement(gibsmun, "vCredPres").text = "{:.2f}".format(0)
-            etree.SubElement(gibsmun, "vCredPresCondSus").text = "{:.2f}".format(0)
+            etree.SubElement(gcbs, "vDif").text = "{:.2f}".format(0)
+            etree.SubElement(gcbs, "vDevTrib").text = "{:.2f}".format(0)
+            etree.SubElement(gcbs, "vCBS").text = "{:.2f}".format(nota_fiscal.totais_cbs)
+            etree.SubElement(gcbs, "vCredPres").text = "{:.2f}".format(0)
+            etree.SubElement(gcbs, "vCredPresCondSus").text = "{:.2f}".format(0)
 
 
 
