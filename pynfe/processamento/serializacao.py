@@ -452,7 +452,11 @@ class SerializacaoXML(Serializacao):
         )
 
         # Imposto Bens e Serviços e Contribuição Bens e Serviços
-        self._serializar_ibs_cbs()
+        self._serializar_ibs_cbs(
+            produto_servico=produto_servico,
+            modelo=modelo,
+            tag_raiz=imposto,
+            retorna_string=False,)
 
         # tag impostoDevol
         if produto_servico.ipi_valor_ipi_dev:
