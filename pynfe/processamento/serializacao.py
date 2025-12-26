@@ -1316,15 +1316,15 @@ class SerializacaoXML(Serializacao):
         etree.SubElement(grupo_ibscbs_item, "vIBS").text = "{:.2f}".format(produto_servico.ibs_valor)
 
         grupo_ibsuf_item = etree.SubElement(grupo_ibscbs_item, "gIBSUF")
-        etree.SubElement(grupo_ibsuf_item, "pIBSUF").text = "{:.2f}".format(produto_servico.ibs_uf_aliquota_percentual)
+        etree.SubElement(grupo_ibsuf_item, "pIBSUF").text = "{:.4f}".format(produto_servico.ibs_uf_aliquota_percentual)
         etree.SubElement(grupo_ibsuf_item, "vIBSUF").text = "{:.2f}".format(produto_servico.ibs_uf_valor)
 
         grupo_ibsmun_item = etree.SubElement(grupo_ibscbs_item, "gIBSMun")
-        etree.SubElement(grupo_ibsmun_item, "pIBSMun").text = "{:.2f}".format(produto_servico.ibs_mun_aliquota_percentual)
+        etree.SubElement(grupo_ibsmun_item, "pIBSMun").text = "{:.4f}".format(produto_servico.ibs_mun_aliquota_percentual)
         etree.SubElement(grupo_ibsmun_item, "vIBSMun").text = "{:.2f}".format(produto_servico.ibs_mun_valor)
 
         grupo_cbs_item = etree.SubElement(grupo_ibscbs_item, "gCBS")
-        etree.SubElement(grupo_cbs_item, "pCBS").text = "{:.2f}".format(produto_servico.cbs_aliquota_percentual)
+        etree.SubElement(grupo_cbs_item, "pCBS").text = "{:.4f}".format(produto_servico.cbs_aliquota_percentual)
         etree.SubElement(grupo_cbs_item, "vCBS").text = "{:.2f}".format(produto_servico.cbs_valor)
 
     def _serializar_imposto_importacao(
@@ -1775,7 +1775,6 @@ class SerializacaoXML(Serializacao):
             etree.SubElement(gibs, "vIBS").text = "{:.2f}".format(nota_fiscal.totais_ibs)
             etree.SubElement(gibs, "vCredPres").text = "{:.2f}".format(0)
             etree.SubElement(gibs, "vCredPresCondSus").text = "{:.2f}".format(0)
-
 
             gcbs = etree.SubElement(ibscbstot, "gCBS")
             etree.SubElement(gcbs, "vCBS").text = "{:.2f}".format(nota_fiscal.totais_ibs_mun)
