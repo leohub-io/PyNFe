@@ -491,7 +491,7 @@ class NotaFiscal(Entidade):
         self.totais_imposto_seletivo += obj.imposto_seletivo_valor
 
         # - IBS e CBS
-        self.totais_ibs_cbs_base_calculo = obj.ibs_cbs_valor_base_calculo
+        self.totais_ibs_cbs_base_calculo += obj.ibs_cbs_valor_base_calculo
                 
         # - IBS
         self.totais_ibs += obj.ibs_valor
