@@ -1047,13 +1047,13 @@ class NotaFiscalProduto(Entidade):
     imposto_seletivo_cod_class_trib = str()
     
     #   - Valor da base de cálculo do IS - vBCIS
-    imposto_seletivo_valor_base_calculo  = str()
+    imposto_seletivo_valor_base_calculo  = Decimal()
     
     #   - Aliquota do IS - pIS
-    imposto_seletivo_aliquota_percentual = str()
+    imposto_seletivo_aliquota_percentual = Decimal()
     
     #   - Valor do IS - vIS
-    imposto_seletivo_valor = str()
+    imposto_seletivo_valor = Decimal()
 
     #  - Imposto sobre Bens e Serviços IBS e Contribuição sobre Bens e Serviços CBS - tag IBSCBS
     #   - Código Situação Tributária - CST
@@ -1064,31 +1064,31 @@ class NotaFiscalProduto(Entidade):
     
     #   - Grupo IBS e CBS - gIBSCBS
     #    - Base de cálculo IBS e CBS - vBC
-    ibs_cbs_valor_base_calculo = str()
+    ibs_cbs_valor_base_calculo = Decimal()
 
     #    - Valor do IBS - vIBS
-    ibs_valor = str()
+    ibs_valor = Decimal()
 
     #   - Grupo IBS - UF - gIBSUF
     #    - Aliquota IBS UF
-    ibs_uf_aliquota_percentual = str()
+    ibs_uf_aliquota_percentual = Decimal()
     
     #    - Valor IBS UF
-    ibs_uf_valor = str()
+    ibs_uf_valor = Decimal()
 
     #   - Grupo IBS - Municipal - gIBSMun
     #    - Aliquota IBS Municipal
-    ibs_mun_aliquota_percentual = str()
+    ibs_mun_aliquota_percentual = Decimal()
     
     #    - Valor IBS Municipal
-    ibs_mun_valor = str()
+    ibs_mun_valor = Decimal()
 
     #   - Grupo CBS - gCBS
     #    - Aliquota CBS   
-    cbs_aliquota_percentual = str()
+    cbs_aliquota_percentual = Decimal()
     
     #    - Valor CBS 
-    cbs_valor = str()
+    cbs_valor = Decimal()
 
 
     # - Informacoes Adicionais
