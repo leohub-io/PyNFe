@@ -4,6 +4,8 @@ import codecs
 import os
 from unicodedata import normalize
 from signxml import XMLSigner
+from typing import Literal
+from decimal import Decimal
 
 try:
     from lxml import etree  # noqa: F401
@@ -29,9 +31,14 @@ def so_numeros(texto) -> str:
 
 # @memoize
 def obter_pais_por_codigo(codigo):
-    # TODO
-    if codigo == "1058":
+    if codigo == "1058" or codigo == "" or codigo is None:
         return "Brasil"
+
+    pais = carregar_arquivo_pais(codigo=codigo)
+    pais = pais.get(codigo)
+    if not pais:
+        raise ValueError
+    return pais
 
 
 CAMINHO_DATA = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data")
@@ -162,9 +169,90 @@ def remover_acentos(txt):
     return normalize("NFKD", txt).encode("ASCII", "ignore").decode("ASCII")
 
 
+def carregar_arquivo_pais(codigo):
+    caminho_arquivo = os.path.join(CAMINHO_MUNICIPIOS, "PaisIBGE.txt")
+
+    with open(caminho_arquivo, "r", encoding="utf-8-sig") as arquivo:
+        linhas = arquivo.readlines()
+
+    return {
+        linha.split("\t", maxsplit=1)[0].strip(): linha.split("\t", maxsplit=1)[1].strip()
+        for linha in linhas
+    }
+
+
 class CustomXMLSigner(XMLSigner):
     def __init__(self, method, signature_algorithm, digest_algorithm, c14n_algorithm):
         super().__init__(method, signature_algorithm, digest_algorithm, c14n_algorithm)
 
     def check_deprecated_methods(self):
         pass
+
+
+def is_empty(value):
+    """
+    Verifica se um valor está vazio.
+
+    Parameters:
+    - value: O valor a ser verificado.
+
+    Returns:
+    - True se o valor estiver vazio, False caso contrário.
+    """
+    if value is None:
+        return True
+    elif isinstance(value, (int, float, Decimal)) and value == Decimal(0):
+        # Verifica se o valor numérico é igual a zero.
+        return True
+    elif isinstance(value, str) and not value.strip():
+        # Verifica se a string está vazia ou contém apenas espaços em branco.
+        return True
+    elif isinstance(value, (list, tuple, dict)) and not value:
+        # Verifica se a lista, tupla ou dicionário está vazio.
+        return True
+    else:
+        return False
+
+
+def truncar_valor(float_number: float, decimal_places: int, suprimir_zeros: bool = False):
+    multiplier = 10**decimal_places
+    result = str(int(float_number * multiplier) / multiplier)
+    if suprimir_zeros:
+        result = result.rstrip("0").rstrip(".")
+    return result
+
+
+def arredondar_valor(value: float, decimal_places: int, suprimir_zeros: bool = False):
+    f = f"%.{decimal_places}f"
+    result = f % value
+    if suprimir_zeros:
+        result = result.rstrip("0").rstrip(".")
+    return result
+
+
+def ajustar_valor(
+    value: float,
+    decimal_places: int = 2,
+    min_decimal_places: int = 2,
+    tipo: Literal["ROUND", "TRUNC"] = "ROUND",
+    decimal_separator: str = ".",
+):
+    value = 0 if value is None else value
+
+    formated_value: str = "0"
+    supress_zeros = min_decimal_places < decimal_places
+
+    if tipo == "ROUND":
+        formated_value = arredondar_valor(value, decimal_places, supress_zeros)
+    else:
+        formated_value = truncar_valor(value, decimal_places, supress_zeros)
+
+    pi, sep, dec = list(formated_value.partition("."))
+
+    # preenche com zeros a direita até a quantidade minima
+    if min_decimal_places:
+        dec = dec.ljust(min_decimal_places, "0")
+    # se não tem decimais não haverá separator
+    sep = decimal_separator if dec else ""
+
+    return f"{pi}{sep}{dec}".replace(".", decimal_separator)
