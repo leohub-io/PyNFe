@@ -34,7 +34,7 @@ class Produto(Entidade):
     # Tabela https://www.confaz.fazenda.gov.br/anexo-i.pdf
     cest = str()
 
-    codigo_beneficio_fiscal = str()
+    cbenef = str()
 
     # - Unid. Com.
     unidade_comercial = str()
@@ -112,6 +112,7 @@ class Produto(Entidade):
 
     icms_modalidade = str()
     icms_origem = int()
+    icms_csosn = str()
     icms_aliquota = Decimal()
     icms_credito = Decimal()
 
