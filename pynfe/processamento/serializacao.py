@@ -2116,7 +2116,19 @@ class SerializacaoQrcode(object):
         # url_chave -Texto com a URL de consulta por chave de acesso a ser impressa no DANFE NFC-e.
         # Informar a URL da “Consulta por chave de acesso da NFC-e”.
         # A mesma URL que deve estar informada no DANFE NFC-e para consulta por chave de acesso
-        lista_uf_padrao = ["PR", "CE", "RS", "RJ", "RO", "DF"]
+        lista_uf_padrao = [
+            "PR",
+            "CE",
+            "RS",
+            "RJ",
+            "RO",
+            "DF",
+            "MS",
+            "MT",
+            "MG",
+            "MA",
+            "AL",
+        ]
         if uf in lista_uf_padrao:
             qrcode = NFCE[uf]["QR"] + url
             url_chave = NFCE[uf]["URL"]
@@ -2127,21 +2139,28 @@ class SerializacaoQrcode(object):
             else:
                 qrcode = NFCE[uf]["HTTPS"] + "www.homologacao." + NFCE[uf]["QR"] + url
                 url_chave = NFCE[uf]["HTTPS"] + "www.homologacao." + NFCE[uf]["URL"]
-        # BA tem comportamento distindo para qrcode e url
+        # BA tem comportamento distinto para qrcode e url
         elif uf == "BA":
             if tpamb == "1":
                 qrcode = NFCE[uf]["HTTPS"] + NFCE[uf]["QR"] + url
             else:
                 qrcode = NFCE[uf]["HOMOLOGACAO"] + NFCE[uf]["QR"] + url
             url_chave = url_chave = NFCE[uf]["URL"]
-        # MG tem comportamento distindos qrcode e url
-        elif uf == "MG":
-            qrcode = NFCE[uf]["QR"] + url
+        # # MG tem comportamento distinto qrcode e url
+        # elif uf == "MG":
+        #     qrcode = NFCE[uf]["QR"] + url
+        #     if tpamb == "1":
+        #         url_chave = NFCE[uf]["HTTPS"] + NFCE[uf]["URL"]
+        #     else:
+        #         url_chave = NFCE[uf]["HOMOLOGACAO"] + NFCE[uf]["URL"]
+        # AC, AM, RR, PA,
+        elif uf == "GO":
             if tpamb == "1":
+                qrcode = "https://nfeweb." + NFCE[uf]["QR"] + url
                 url_chave = NFCE[uf]["HTTPS"] + NFCE[uf]["URL"]
             else:
+                qrcode = "https://nfewebhomolog." + NFCE[uf]["QR"] + url
                 url_chave = NFCE[uf]["HOMOLOGACAO"] + NFCE[uf]["URL"]
-        # AC, AM, RR, PA,
         else:
             if tpamb == "1":
                 qrcode = NFCE[uf]["HTTPS"] + NFCE[uf]["QR"] + url
