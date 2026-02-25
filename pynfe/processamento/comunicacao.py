@@ -517,6 +517,7 @@ class ComunicacaoSefaz(Comunicacao):
                 "SE",
                 "TO",
                 "PA",
+                "CE"
             ]
             if self.uf.upper() in lista_svrs:
                 if self._ambiente == 1:
