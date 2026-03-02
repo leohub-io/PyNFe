@@ -2144,6 +2144,7 @@ class SerializacaoQrcode(object):
             "MG",
             "MA",
             "AL",
+            "SE",
         ]
         if uf in lista_uf_padrao:
             qrcode = NFCE[uf]["QR"] + url

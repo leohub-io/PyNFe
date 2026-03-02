@@ -157,9 +157,10 @@ NFCE = {
         "URL": "http://nfce.sefaz.al.gov.br/consultaNFCe.htm?",
     },
     "SE": {
-        "QR": "nfe.se.gov.br/portal/consultarNFCe.jsp?",
+        "QR": "https://nfce.sefaz.se.gov.br/portal/portalNoticias.jsp?",
         "HTTPS": "https://www.",
         "HOMOLOGACAO": "http://www.hom.",
+        "URL": "https://nfce.sefaz.se.gov.br/portal/portalNoticias.jsp?jsp=barra-menu/servicos/consultaDANFENFCe.htm"
     },
     "BA": {
         "STATUS": "",
