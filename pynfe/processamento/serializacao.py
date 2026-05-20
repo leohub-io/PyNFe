@@ -10,6 +10,7 @@ import pynfe.utils.xml_writer as xmlw
 from pynfe.entidades import Manifesto, NotaFiscal
 from pynfe.utils import (
     etree,
+    normalizar_cnpj,
     obter_codigo_por_municipio,
     obter_municipio_por_codigo,
     obter_pais_por_codigo,
@@ -106,10 +107,13 @@ class SerializacaoXML(Serializacao):
         raiz = etree.Element(tag_raiz)
 
         # Dados do emitente
-        if len(so_numeros(emitente.cnpj)) == 11:
-            etree.SubElement(raiz, "CPF").text = so_numeros(emitente.cnpj)
+        documento = normalizar_cnpj(emitente.cnpj)
+
+        if len(documento) == 11:
+            etree.SubElement(raiz, "CPF").text = documento
         else:
-            etree.SubElement(raiz, "CNPJ").text = so_numeros(emitente.cnpj)
+            etree.SubElement(raiz, "CNPJ").text = documento
+
         etree.SubElement(raiz, "xNome").text = emitente.razao_social
         etree.SubElement(raiz, "xFant").text = emitente.nome_fantasia
         # Endereço
@@ -150,8 +154,12 @@ class SerializacaoXML(Serializacao):
 
         # Dados do cliente (destinatário)
         documento = so_numeros(cliente.numero_documento)
+
         if cliente.tipo_documento == 'idEstrangeiro':
             documento = cliente.numero_documento
+
+        if cliente.tipo_documento == 'CNPJ':
+            documento = normalizar_cnpj(cliente.numero_documento)
 
         etree.SubElement(raiz, cliente.tipo_documento).text = documento
         if cliente.razao_social:
@@ -264,10 +272,12 @@ class SerializacaoXML(Serializacao):
     ):
         raiz = etree.Element(tag_raiz)
 
-        if len(so_numeros(autorizados_baixar_xml.CPFCNPJ)) == 11:
-            etree.SubElement(raiz, "CPF").text = so_numeros(autorizados_baixar_xml.CPFCNPJ)
+        documento = normalizar_cnpj(autorizados_baixar_xml.CPFCNPJ)
+
+        if len(documento) == 11:
+            etree.SubElement(raiz, "CPF").text = documento
         else:
-            etree.SubElement(raiz, "CNPJ").text = so_numeros(autorizados_baixar_xml.CPFCNPJ)
+            etree.SubElement(raiz, "CNPJ").text = documento
 
         if retorna_string:
             return etree.tostring(raiz, encoding="unicode", pretty_print=True)
@@ -1589,10 +1599,12 @@ class SerializacaoXML(Serializacao):
                         refNFP = etree.SubElement(nfref, "refNFP")
                         etree.SubElement(refNFP, "cUF").text = str(refNFe.uf)
                         etree.SubElement(refNFP, "AAMM").text = str(refNFe.mes_ano_emissao)
-                        if len(so_numeros(refNFe.cnpj)) == 11:
-                            etree.SubElement(refNFP, "CPF").text = so_numeros(refNFe.cnpj)
+                        documento = normalizar_cnpj(refNFe.cnpj)
+
+                        if len(documento) == 11:
+                            etree.SubElement(refNFP, "CPF").text = documento
                         else:
-                            etree.SubElement(refNFP, "CNPJ").text = so_numeros(refNFe.cnpj)
+                            etree.SubElement(refNFP, "CNPJ").text = documento
                         etree.SubElement(refNFP, "IE").text = so_numeros(refNFe.ie)
                         etree.SubElement(refNFP, "mod").text = "04"
                         etree.SubElement(refNFP, "serie").text = str(refNFe.serie)
@@ -1951,10 +1963,13 @@ class SerializacaoXML(Serializacao):
         e = etree.SubElement(raiz, "infEvento", Id=evento.identificador)
         etree.SubElement(e, "cOrgao").text = CODIGOS_ESTADOS[evento.uf.upper()]
         etree.SubElement(e, "tpAmb").text = str(self._ambiente)
-        if len(so_numeros(evento.cnpj)) == 11:
-            etree.SubElement(e, "CPF").text = evento.cnpj
+        documento = normalizar_cnpj(evento.cnpj)
+
+        if len(documento) == 11:
+            etree.SubElement(e, "CPF").text = documento
         else:
-            etree.SubElement(e, "CNPJ").text = evento.cnpj
+            etree.SubElement(e, "CNPJ").text = documento
+
         etree.SubElement(e, "chNFe").text = evento.chave
         etree.SubElement(e, "dhEvento").text = (
             evento.data_emissao.strftime("%Y-%m-%dT%H:%M:%S") + tz
@@ -1985,10 +2000,13 @@ class SerializacaoXML(Serializacao):
         e = etree.SubElement(raiz, "infEvento", Id=evento.identificador)
         etree.SubElement(e, "cOrgao").text = CODIGOS_ESTADOS[evento.uf.upper()]
         etree.SubElement(e, "tpAmb").text = str(self._ambiente)
-        if len(so_numeros(evento.cnpj)) == 11:
-            etree.SubElement(e, "CPF").text = evento.cnpj
+        documento = normalizar_cnpj(evento.cnpj)
+
+        if len(documento) == 11:
+            etree.SubElement(e, "CPF").text = documento
         else:
-            etree.SubElement(e, "CNPJ").text = evento.cnpj
+            etree.SubElement(e, "CNPJ").text = documento
+
         etree.SubElement(e, "chMDFe").text = evento.chave
         etree.SubElement(e, "dhEvento").text = (
             evento.data_emissao.strftime("%Y-%m-%dT%H:%M:%S") + tz
@@ -2338,10 +2356,12 @@ class SerializacaoMDFe(Serializacao):
         raiz = etree.Element(tag_raiz)
 
         # Dados do emitente
-        if len(so_numeros(emitente.cpfcnpj)) == 11:
-            etree.SubElement(raiz, "CPF").text = so_numeros(emitente.cpfcnpj)
+        documento = normalizar_cnpj(emitente.cpfcnpj)
+
+        if len(documento) == 11:
+            etree.SubElement(raiz, "CPF").text = documento
         else:
-            etree.SubElement(raiz, "CNPJ").text = so_numeros(emitente.cpfcnpj)
+            etree.SubElement(raiz, "CNPJ").text = documento
         etree.SubElement(raiz, "IE").text = emitente.inscricao_estadual
         etree.SubElement(raiz, "xNome").text = emitente.razao_social
         if emitente.nome_fantasia:
