@@ -31,9 +31,9 @@ NFCE = {
         "CHAVE": "nfce.sefaz.am.gov.br/nfce-services/services/NfeConsulta4",
         "INUTILIZACAO": "nfce.sefaz.am.gov.br/nfce-services/services/NfeInutilizacao4",
         "EVENTOS": "nfce.sefaz.am.gov.br/nfce-services/services/RecepcaoEvento4",
-        "QR": "sefaz.am.gov.br/nfceweb/consultarNFCe.jsp?",
-        "URL": "sefaz.am.gov.br/nfceweb/formConsulta.do",
-        "HTTPS": "https://sistemas.",
+        "QR": "sistemas.sefaz.am.gov.br/nfceweb/consultarNFCe.jsp?",
+        "URL": "sistemas.sefaz.am.gov.br/nfceweb/formConsulta.do",
+        "HTTPS": "https://",
         "HOMOLOGACAO": "http://homnfce.",
     },
     "RR": {
