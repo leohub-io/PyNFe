@@ -476,11 +476,7 @@ class SerializacaoXML(Serializacao):
         # Total do item (vProd + vIBS + vCBS) - obrigatorio quando o grupo IBS/CBS
         # estiver preenchido (Reforma Tributaria / NT 2025.002)
         if produto_servico.ibs_cbs_valor_base_calculo:
-            etree.SubElement(raiz, "vItem").text = "{:.2f}".format(
-                produto_servico.valor_total_bruto
-                + produto_servico.ibs_valor
-                + produto_servico.cbs_valor
-            )
+            etree.SubElement(raiz, "vItem").text = "{:.2f}".format(produto_servico.vitem_valor)
 
         if retorna_string:
             return etree.tostring(raiz, encoding="unicode", pretty_print=True)
@@ -1801,9 +1797,7 @@ class SerializacaoXML(Serializacao):
             # grupo IBS/CBS estiver preenchido (Reforma Tributaria / NT 2025.002).
             # Sibling of IBSCBSTot inside <total>, not nested inside it.
             etree.SubElement(total, "vNFTot").text = "{:.2f}".format(
-                nota_fiscal.totais_icms_total_nota
-                + nota_fiscal.totais_ibs
-                + nota_fiscal.totais_cbs
+                nota_fiscal.totais_ibs_cbs_total_nota
             )
 
 
