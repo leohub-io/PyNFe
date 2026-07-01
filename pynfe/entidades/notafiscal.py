@@ -321,9 +321,12 @@ class NotaFiscal(Entidade):
     #   - Total IBS
     totais_ibs = Decimal()
 
-    #  - CBS 
+    #  - CBS
     #   - Valor total da Contribuição sobre Bens e Serviços
     totais_cbs = Decimal()
+
+    # - Total geral da NF-e (vNF + vIBS + vCBS) - NT 2025.002
+    totais_ibs_cbs_total_nota = Decimal()
 
     # Transporte
     # - Modalidade do Frete (obrigatorio - seleciona de lista) - MODALIDADES_FRETE
@@ -505,6 +508,9 @@ class NotaFiscal(Entidade):
         # - CBS
         self.totais_cbs += obj.cbs_valor
 
+        # - Total do item (vItem = vProd + vIBS + vCBS) - NT 2025.002
+        obj.vitem_valor = obj.valor_total_bruto + obj.ibs_valor + obj.cbs_valor
+
         # TODO calcular impostos aproximados
         # self.totais_tributos_aproximado += obj.tributos
 
@@ -520,6 +526,11 @@ class NotaFiscal(Entidade):
             + obj.ipi_valor_ipi_dev
             - obj.desconto
             - obj.icms_desonerado
+        )
+
+        # - Total geral da NF-e (vNFTot = vNF + vIBS + vCBS) - NT 2025.002
+        self.totais_ibs_cbs_total_nota = (
+            self.totais_icms_total_nota + self.totais_ibs + self.totais_cbs
         )
 
         return obj
@@ -1091,8 +1102,11 @@ class NotaFiscalProduto(Entidade):
     #    - Aliquota CBS   
     cbs_aliquota_percentual = Decimal()
     
-    #    - Valor CBS 
+    #    - Valor CBS
     cbs_valor = Decimal()
+
+    #   - Total do item (vProd + vIBS + vCBS) - NT 2025.002
+    vitem_valor = Decimal()
 
 
     # - Informacoes Adicionais
