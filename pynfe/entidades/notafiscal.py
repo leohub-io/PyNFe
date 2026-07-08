@@ -502,20 +502,6 @@ class NotaFiscal(Entidade):
         self.totais_icms_q_bc_mono_ret += obj.icms_q_bc_mono_ret
         self.totais_icms_v_icms_mono_ret += obj.icms_v_icms_mono_ret
         
-        # - IS - Imposto seletivo
-        self.totais_imposto_seletivo += obj.imposto_seletivo_valor
-
-        # - IBS e CBS
-        self.totais_ibs_cbs_base_calculo += obj.ibs_cbs_valor_base_calculo
-                
-        # - IBS
-        self.totais_ibs += obj.ibs_valor
-        self.totais_ibs_uf += obj.ibs_uf_valor
-        self.totais_ibs_mun += obj.ibs_mun_valor
-        
-        # - CBS
-        self.totais_cbs += obj.cbs_valor
-
         # Reforma Tributaria - IVA Dual (NT 2025.002-RTC)
         self.totais_vbc_ibscbs += obj.ibscbs_vbc
         self.totais_ibs_uf += obj.ibscbs_v_ibs_uf
