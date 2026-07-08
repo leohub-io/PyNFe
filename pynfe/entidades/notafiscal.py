@@ -511,7 +511,7 @@ class NotaFiscal(Entidade):
         self.totais_is += obj.is_valor
 
         # - Total do item (vItem = vProd + vIBS + vCBS) - NT 2025.002
-        obj.vitem_valor = obj.valor_total_bruto + obj.ibs_valor + obj.cbs_valor
+        obj.vitem_valor = obj.valor_total_bruto + obj.ibscbs_v_ibs + obj.ibscbs_v_cbs
 
         # TODO calcular impostos aproximados
         # self.totais_tributos_aproximado += obj.tributos
