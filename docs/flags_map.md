@@ -1,4 +1,4 @@
-# Source Map: `flags.py` (681 lines)
+# Source Map: `flags.py` (684 lines)
 
 Constants, namespaces, tax code enumerations, and state codes used throughout PyNFe.
 
@@ -17,12 +17,12 @@ Constants, namespaces, tax code enumerations, and state codes used throughout Py
 | IPI types | 250-270 | `IPI_TIPOS_TRIBUTACAO` and `IPI_TIPOS_CALCULO` |
 | PIS types | 272-407 | `PIS_TIPOS_TRIBUTACAO` — all CST codes (01-99) |
 | COFINS types | 411-548 | `COFINS_TIPOS_TRIBUTACAO` — all CST codes (01-99) |
-| Reforma Tributaria | 550-582 | `IBS_CBS_TIPOS_TRIBUTACAO` (15 CSTs, 3-digit) and `IS_TIPOS_TRIBUTACAO` (7 CSTs, 2-digit) — IVA Dual (EC 132/2023) |
-| Freight modalities | 584-591 | `MODALIDADES_FRETE` (0-9) |
-| Process origins | 593-599 | `ORIGENS_PROCESSO` |
-| State codes | 601-633 | `CODIGOS_ESTADOS` — UF to IBGE code mapping |
-| Card brands | 635-664 | `BANDEIRA_CARTAO` (01-99) |
-| Payment methods | 666-681 | `FORMAS_PAGAMENTO` (01-99) |
+| Reforma Tributaria | 550-585 | `IBS_CBS_TIPOS_TRIBUTACAO` (18 CSTs, 3-digit) and `IS_TIPOS_TRIBUTACAO` (7 CSTs, 2-digit) — IVA Dual (EC 132/2023) |
+| Freight modalities | 587-594 | `MODALIDADES_FRETE` (0-9) |
+| Process origins | 596-602 | `ORIGENS_PROCESSO` |
+| State codes | 604-636 | `CODIGOS_ESTADOS` — UF to IBGE code mapping |
+| Card brands | 638-667 | `BANDEIRA_CARTAO` (01-99) |
+| Payment methods | 669-684 | `FORMAS_PAGAMENTO` (01-99) |
 
 ## Key Constants
 

@@ -17,11 +17,14 @@ from pynfe.entidades.notafiscal import NotaFiscal
 from pynfe.entidades.fonte_dados import _fonte_dados
 from pynfe.processamento.assinatura import AssinaturaA1
 from pynfe.processamento.serializacao import SerializacaoXML
-from pynfe.utils.flags import CODIGO_BRASIL, NAMESPACE_NFE
+from pynfe.processamento.validacao import Validacao
+from pynfe.utils.flags import CODIGO_BRASIL, NAMESPACE_NFE, XSD_NFE
 
 
 class ReformaTributariaSerializacaoTestCase(unittest.TestCase):
     """Tests for IBSCBS (Reforma Tributaria) XML serialization per NT 2025.002-RTC."""
+
+    _validador_xsd = Validacao()
 
     def setUp(self):
         self.certificado = "./tests/certificado.pfx"
@@ -126,7 +129,18 @@ class ReformaTributariaSerializacaoTestCase(unittest.TestCase):
         serializador = SerializacaoXML(_fonte_dados, homologacao=self.homologacao)
         xml = serializador.exportar()
         a1 = AssinaturaA1(self.certificado, self.senha)
-        return a1.assinar(xml)
+        signed = a1.assinar(xml)
+
+        self._validar_contra_xsd(signed)
+
+        return signed
+
+    def _validar_contra_xsd(self, signed_xml):
+        """Valida o <NFe> assinado contra o XSD oficial da SEFAZ (nfe_v4.00.xsd),
+        que inclui leiauteNFe_v4.00.xsd e DFeTiposBasicos_v1.00.xsd (IBSCBS/gRed)."""
+        nfe = signed_xml.xpath("//ns:NFe", namespaces=self.ns)[0]
+        xsd_path = self._validador_xsd.get_xsd(XSD_NFE)
+        self._validador_xsd.validar_etree(nfe, xsd_path, use_assert=True)
 
     # ------------------------------------------------------------------
     # Test 1: CST 000 — full regular taxation with IBS UF/Mun split
@@ -208,10 +222,98 @@ class ReformaTributariaSerializacaoTestCase(unittest.TestCase):
         is_tag = xml.xpath("//ns:det/ns:imposto/ns:IS", namespaces=self.ns)
         self.assertEqual(len(is_tag), 0)
 
+        # No gRed anywhere (CST 000 is not in IBSCBS_CST_GRUPO_REDUCAO)
+        gred = xml.xpath("//ns:IBSCBS/ns:gIBSCBS//ns:gRed", namespaces=self.ns)
+        self.assertEqual(len(gred), 0)
+
     # ------------------------------------------------------------------
-    # Test 2: CST 222 — isenção (no vBC, values zero)
+    # Test 1b: CST 011 — alíquotas uniformes reduzidas (gRed em gIBSUF/gIBSMun/gCBS)
     # ------------------------------------------------------------------
-    def test_cst222_isencao_sem_valores(self):
+    def test_cst011_reducao_aliquota_com_gred(self):
+        emitente = self._emitente()
+        cliente = self._cliente()
+        nf = self._nota_fiscal(emitente, cliente)
+
+        kwargs = self._base_product_kwargs()
+        kwargs.update(
+            ibscbs_cst="011",
+            ibscbs_c_class_trib="000003",
+            ibscbs_vbc=Decimal("1000.00"),
+            ibscbs_p_ibs_uf=Decimal("0.1000"),
+            ibscbs_v_ibs_uf=Decimal("1.00"),
+            ibscbs_ibs_uf_p_red_aliq=Decimal("60.0000"),
+            ibscbs_ibs_uf_p_aliq_efet=Decimal("0.0400"),
+            ibscbs_p_ibs_mun=Decimal("0.0500"),
+            ibscbs_v_ibs_mun=Decimal("0.50"),
+            ibscbs_ibs_mun_p_red_aliq=Decimal("60.0000"),
+            ibscbs_ibs_mun_p_aliq_efet=Decimal("0.0200"),
+            ibscbs_v_ibs=Decimal("1.50"),
+            ibscbs_p_cbs=Decimal("0.9000"),
+            ibscbs_v_cbs=Decimal("9.00"),
+            ibscbs_cbs_p_red_aliq=Decimal("60.0000"),
+            ibscbs_cbs_p_aliq_efet=Decimal("0.3600"),
+        )
+        nf.adicionar_produto_servico(**kwargs)
+        nf.adicionar_pagamento(t_pag="01", x_pag="Dinheiro", v_pag=1000.00, ind_pag=0)
+
+        xml = self._serializar_e_assinar()
+
+        # CST 011 is taxable — gIBSCBS present
+        gibscbs = xml.xpath("//ns:IBSCBS/ns:gIBSCBS", namespaces=self.ns)
+        self.assertEqual(len(gibscbs), 1)
+
+        # gIBSUF/gRed
+        gred_uf = xml.xpath("//ns:IBSCBS/ns:gIBSCBS/ns:gIBSUF/ns:gRed", namespaces=self.ns)
+        self.assertEqual(len(gred_uf), 1)
+        self.assertEqual(
+            xml.xpath(
+                "//ns:IBSCBS/ns:gIBSCBS/ns:gIBSUF/ns:gRed/ns:pRedAliq", namespaces=self.ns
+            )[0].text,
+            "60.0000",
+        )
+        self.assertEqual(
+            xml.xpath(
+                "//ns:IBSCBS/ns:gIBSCBS/ns:gIBSUF/ns:gRed/ns:pAliqEfet", namespaces=self.ns
+            )[0].text,
+            "0.0400",
+        )
+
+        # gIBSMun/gRed
+        gred_mun = xml.xpath("//ns:IBSCBS/ns:gIBSCBS/ns:gIBSMun/ns:gRed", namespaces=self.ns)
+        self.assertEqual(len(gred_mun), 1)
+        self.assertEqual(
+            xml.xpath(
+                "//ns:IBSCBS/ns:gIBSCBS/ns:gIBSMun/ns:gRed/ns:pRedAliq", namespaces=self.ns
+            )[0].text,
+            "60.0000",
+        )
+        self.assertEqual(
+            xml.xpath(
+                "//ns:IBSCBS/ns:gIBSCBS/ns:gIBSMun/ns:gRed/ns:pAliqEfet", namespaces=self.ns
+            )[0].text,
+            "0.0200",
+        )
+
+        # gCBS/gRed
+        gred_cbs = xml.xpath("//ns:IBSCBS/ns:gIBSCBS/ns:gCBS/ns:gRed", namespaces=self.ns)
+        self.assertEqual(len(gred_cbs), 1)
+        self.assertEqual(
+            xml.xpath(
+                "//ns:IBSCBS/ns:gIBSCBS/ns:gCBS/ns:gRed/ns:pRedAliq", namespaces=self.ns
+            )[0].text,
+            "60.0000",
+        )
+        self.assertEqual(
+            xml.xpath(
+                "//ns:IBSCBS/ns:gIBSCBS/ns:gCBS/ns:gRed/ns:pAliqEfet", namespaces=self.ns
+            )[0].text,
+            "0.3600",
+        )
+
+    # ------------------------------------------------------------------
+    # Test 2: CST 400 — isenção (no vBC, values zero)
+    # ------------------------------------------------------------------
+    def test_cst400_isencao_sem_valores(self):
         emitente = self._emitente()
         cliente = self._cliente()
         nf = self._nota_fiscal(emitente, cliente)
@@ -225,7 +327,7 @@ class ReformaTributariaSerializacaoTestCase(unittest.TestCase):
             valor_total_bruto=Decimal("50.00"),
             quantidade_tributavel=Decimal("1"),
             valor_unitario_tributavel=Decimal("50.00"),
-            ibscbs_cst="222",
+            ibscbs_cst="400",
             ibscbs_c_class_trib="000002",
         )
         nf.adicionar_produto_servico(**kwargs)
@@ -239,13 +341,13 @@ class ReformaTributariaSerializacaoTestCase(unittest.TestCase):
 
         # CST present
         cst = xml.xpath("//ns:IBSCBS/ns:CST", namespaces=self.ns)[0].text
-        self.assertEqual(cst, "222")
+        self.assertEqual(cst, "400")
 
         # cClassTrib present
         cclass = xml.xpath("//ns:IBSCBS/ns:cClassTrib", namespaces=self.ns)[0].text
         self.assertEqual(cclass, "000002")
 
-        # No gIBSCBS group (CST 222 is not in taxable CSTs)
+        # No gIBSCBS group (CST 400 is not in taxable CSTs)
         gibscbs = xml.xpath("//ns:IBSCBS/ns:gIBSCBS", namespaces=self.ns)
         self.assertEqual(len(gibscbs), 0)
 

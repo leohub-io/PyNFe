@@ -51,20 +51,23 @@ from pynfe.utils.flags import IBS_CBS_TIPOS_TRIBUTACAO
 | CST | Descricao |
 |-----|-----------|
 | 000 | Tributacao integral |
-| 010 | Tributacao com aliquota reduzida |
-| 100 | Tributacao com suspensao |
-| 110 | Imunidade — exportacao |
-| 200 | Tributacao com diferimento |
-| 222 | Isencao |
-| 300 | Nao incidencia |
-| 400 | Tributacao por substituicao |
-| 410 | Tributacao com aliquota zero |
-| 510 | Tributacao integral — regime especifico |
-| 600 | Tributacao monofasica — incidencia padrao |
-| 620 | Tributacao monofasica — demais operacoes |
-| 800 | Credito presumido |
-| 810 | Credito presumido — ZFM |
-| 900 | Outros |
+| 010 | Tributacao com aliquotas uniformes |
+| 011 | Tributacao com aliquotas uniformes reduzidas |
+| 200 | Aliquota reduzida |
+| 220 | Aliquota fixa |
+| 221 | Aliquota fixa proporcional |
+| 222 | Reducao de base de calculo |
+| 400 | Isencao |
+| 410 | Imunidade e nao incidencia |
+| 510 | Diferimento |
+| 515 | Diferimento com reducao de aliquota |
+| 550 | Suspensao |
+| 620 | Tributacao monofasica |
+| 800 | Transferencia de credito |
+| 810 | Ajuste de IBS na ZFM |
+| 811 | Ajustes |
+| 820 | Tributacao em documento especifico |
+| 830 | Exclusao de base de calculo |
 
 ### IS (Imposto Seletivo) — CSTIS de 2 digitos
 
@@ -138,14 +141,14 @@ nota_fiscal.adicionar_produto_servico(
 )
 ```
 
-### Exemplo: produto isento (CST 222)
+### Exemplo: produto isento (CST 400)
 
 ```python
 nota_fiscal.adicionar_produto_servico(
     # ... campos do produto ...
 
     # IBSCBS isento — apenas CST e cClassTrib, sem valores
-    ibscbs_cst="222",
+    ibscbs_cst="400",
     ibscbs_c_class_trib="000002",
 )
 ```
@@ -257,11 +260,11 @@ O grupo `<IBSCBS>` e adicionado como filho direto de `<imposto>`, apos `<COFINS>
 </det>
 ```
 
-Para CSTs nao tributados (ex: 222 — isencao):
+Para CSTs nao tributados (ex: 400 — isencao):
 
 ```xml
 <IBSCBS>
-  <CST>222</CST>
+  <CST>400</CST>
   <cClassTrib>000002</cClassTrib>
 </IBSCBS>
 ```
@@ -322,15 +325,25 @@ Os totais ficam em um grupo **separado** de `<ICMSTot>`, como irmao dentro de `<
 
 ## Regras de serializacao
 
-### CSTs tributados (emitem `gIBSCBS` com valores)
+### CSTs tributados (ind_gIBSCBS=1 — emitem `gIBSCBS` com valores)
 
-CSTs: 000, 010, 200, 400, 510, 600, 620, 800, 810, 900
+CSTs: 000, 010, 011, 200, 220, 221, 222, 510, 515, 550, 830
 
 Esses CSTs geram o subgrupo `<gIBSCBS>` completo com `vBC`, `gIBSUF`, `gIBSMun`, `vIBS` e `gCBS`.
 
+Dentre eles, 011, 200 e 515 tambem emitem o subgrupo `<gRed>` (`pRedAliq`, `pAliqEfet`) dentro de `gIBSUF`, `gIBSMun` e `gCBS` — reducao de aliquota.
+
+### CSTs com outros grupos (nao implementados)
+
+- 620 (Tributacao monofasica)
+- 800 (Transferencia de credito)
+- 810 (Ajuste de IBS na ZFM)
+- 811 (Ajustes)
+- 820 (Tributacao em documento especifico)
+
 ### CSTs nao tributados (apenas CST + cClassTrib)
 
-CSTs: 100, 110, 222, 300, 410
+CSTs: 400 (Isencao), 410 (Imunidade e nao incidencia)
 
 Esses CSTs geram apenas `<CST>` e `<cClassTrib>`, sem `<gIBSCBS>`.
 
