@@ -2178,6 +2178,14 @@ class SerializacaoQrcode(object):
             else:
                 qrcode = "https://nfewebhomolog." + NFCE[uf]["QR"] + url
                 url_chave = NFCE[uf]["HOMOLOGACAO"] + NFCE[uf]["URL"]
+        elif uf == "AP":
+            if tpamb == "1":
+                qrcode = NFCE[uf]["HTTPS"] + NFCE[uf]["QR"] + url
+            else:
+                qrcode = NFCE[uf]["HOMOLOGACAO"] + NFCE[uf]["QR"] + url
+
+            # URL já está completa
+            url_chave = NFCE[uf]["URL"]
         else:
             if tpamb == "1":
                 qrcode = NFCE[uf]["HTTPS"] + NFCE[uf]["QR"] + url
