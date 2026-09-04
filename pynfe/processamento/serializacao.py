@@ -179,17 +179,25 @@ class SerializacaoXML(Serializacao):
         # 1 – Contribuinte ICMSpagamento à vista;
         # 2 – Contribuinte isento de inscrição;
         # 9 – Não Contribuinte
-        if cliente.indicador_ie == 9:
+        indicador_ie = str(cliente.indicador_ie)
+        inscricao_estadual = (cliente.inscricao_estadual or "").strip()
+
+        if indicador_ie == "9":
             # 9 – Não Contribuinte
             etree.SubElement(raiz, "indIEDest").text = "9"
+            # Um não contribuinte pode possuir IE (NT 2025.001). Quando
+            # informada, ela precisa constar no XML para evitar a rejeição 232.
+            if str(modelo) == "55" and inscricao_estadual:
+                etree.SubElement(raiz, "IE").text = inscricao_estadual
         elif (
-            cliente.indicador_ie == 2 or cliente.isento_icms
-        ) or cliente.inscricao_estadual.upper() == "ISENTO":
+            indicador_ie == "2" or cliente.isento_icms
+        ) or inscricao_estadual.upper() == "ISENTO":
             etree.SubElement(raiz, "indIEDest").text = "2"
         else:
             # Indicador da IE do destinatário: 1 – Contribuinte ICMSpagamento à vista;
-            etree.SubElement(raiz, "indIEDest").text = str(cliente.indicador_ie)
-            etree.SubElement(raiz, "IE").text = cliente.inscricao_estadual
+            etree.SubElement(raiz, "indIEDest").text = indicador_ie
+            if inscricao_estadual:
+                etree.SubElement(raiz, "IE").text = inscricao_estadual
         # Suframa
         if cliente.inscricao_suframa:
             etree.SubElement(raiz, "ISUF").text = cliente.inscricao_suframa
