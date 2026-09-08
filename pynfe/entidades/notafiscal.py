@@ -5,7 +5,7 @@ from decimal import Decimal
 from pynfe import get_version
 
 # from pynfe.utils import so_numeros, memoize
-from pynfe.utils import so_numeros
+from pynfe.utils import normalizar_cnpj, so_numeros
 from pynfe.utils.flags import CODIGOS_ESTADOS, NF_STATUS
 
 from .base import CampoDeprecated, Entidade
@@ -592,7 +592,7 @@ class NotaFiscal(Entidade):
             "uf": CODIGOS_ESTADOS[self.uf],
             "ano": self.data_emissao.strftime("%y"),
             "mes": self.data_emissao.strftime("%m"),
-            "cnpj": so_numeros(self.emitente.cnpj).zfill(14),
+            "cnpj": normalizar_cnpj(self.emitente.cnpj).zfill(14),
             "mod": self.modelo,
             "serie": str(self.serie).zfill(3),
             "nNF": str(self.numero_nf).zfill(9),
@@ -603,7 +603,7 @@ class NotaFiscal(Entidade):
             "uf": CODIGOS_ESTADOS[self.uf],
             "ano": self.data_emissao.strftime("%y"),
             "mes": self.data_emissao.strftime("%m"),
-            "cnpj": so_numeros(self.emitente.cnpj).zfill(14),
+            "cnpj": normalizar_cnpj(self.emitente.cnpj).zfill(14),
             "mod": self.modelo,
             "serie": str(self.serie).zfill(3),
             "nNF": str(self.numero_nf).zfill(9),
