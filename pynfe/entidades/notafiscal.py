@@ -5,7 +5,7 @@ from decimal import Decimal
 from pynfe import get_version
 
 # from pynfe.utils import so_numeros, memoize
-from pynfe.utils import so_numeros
+from pynfe.utils import normalizar_cnpj, so_numeros
 from pynfe.utils.flags import CODIGOS_ESTADOS, NF_STATUS
 
 from .base import CampoDeprecated, Entidade
@@ -325,6 +325,17 @@ class NotaFiscal(Entidade):
     #   - Valor total da Contribuição sobre Bens e Serviços
     totais_cbs = Decimal()
 
+    # Reforma Tributaria - Totais IVA Dual (Group W03 - IBSCBSTot)
+    totais_vbc_ibscbs = Decimal()  # vBCIBSCBS - Total Base de Calculo
+    totais_ibs_uf = Decimal()
+    totais_ibs_mun = Decimal()
+    totais_ibs = Decimal()
+    totais_cbs = Decimal()
+    totais_is = Decimal()
+
+    # Reforma Tributaria - cMunFGIBS (Group B)
+    municipio_fato_gerador_ibs = str()
+
     # Transporte
     # - Modalidade do Frete (obrigatorio - seleciona de lista) - MODALIDADES_FRETE
     # 0=Contratação do Frete por conta do Remetente (CIF);
@@ -491,23 +502,18 @@ class NotaFiscal(Entidade):
         self.totais_icms_q_bc_mono_ret += obj.icms_q_bc_mono_ret
         self.totais_icms_v_icms_mono_ret += obj.icms_v_icms_mono_ret
         
-        # - IS - Imposto seletivo
-        self.totais_imposto_seletivo += obj.imposto_seletivo_valor
-
-        # - IBS e CBS
-        self.totais_ibs_cbs_base_calculo += obj.ibs_cbs_valor_base_calculo
-                
-        # - IBS
-        self.totais_ibs += obj.ibs_valor
-        self.totais_ibs_uf += obj.ibs_uf_valor
-        self.totais_ibs_mun += obj.ibs_mun_valor
-        
-        # - CBS
-        self.totais_cbs += obj.cbs_valor
+        # Reforma Tributaria - IVA Dual (NT 2025.002-RTC)
+        self.totais_vbc_ibscbs += obj.ibscbs_vbc
+        self.totais_ibs_uf += obj.ibscbs_v_ibs_uf
+        self.totais_ibs_mun += obj.ibscbs_v_ibs_mun
+        self.totais_ibs += obj.ibscbs_v_ibs
+        self.totais_cbs += obj.ibscbs_v_cbs
+        self.totais_is += obj.is_valor
 
         # TODO calcular impostos aproximados
         # self.totais_tributos_aproximado += obj.tributos
 
+        # vNF does NOT include IBS/CBS/IS (prohibited in 2025-2026 per NT 2025.002-RTC)
         self.totais_icms_total_nota += (
             obj.valor_total_bruto
             + obj.icms_st_valor
@@ -592,7 +598,7 @@ class NotaFiscal(Entidade):
             "uf": CODIGOS_ESTADOS[self.uf],
             "ano": self.data_emissao.strftime("%y"),
             "mes": self.data_emissao.strftime("%m"),
-            "cnpj": so_numeros(self.emitente.cnpj).zfill(14),
+            "cnpj": normalizar_cnpj(self.emitente.cnpj).zfill(14),
             "mod": self.modelo,
             "serie": str(self.serie).zfill(3),
             "nNF": str(self.numero_nf).zfill(9),
@@ -603,7 +609,7 @@ class NotaFiscal(Entidade):
             "uf": CODIGOS_ESTADOS[self.uf],
             "ano": self.data_emissao.strftime("%y"),
             "mes": self.data_emissao.strftime("%m"),
-            "cnpj": so_numeros(self.emitente.cnpj).zfill(14),
+            "cnpj": normalizar_cnpj(self.emitente.cnpj).zfill(14),
             "mod": self.modelo,
             "serie": str(self.serie).zfill(3),
             "nNF": str(self.numero_nf).zfill(9),
@@ -1043,57 +1049,48 @@ class NotaFiscalProduto(Entidade):
     #   - Valor imposto de importacao
     imposto_importacao_valor = Decimal()
 
-    #  - Imposto Seletivo IS
-    #   - Código Situação Tributária do IS - CSTIS
-    imposto_seletivo_modalidade  = str()
-    
-    #   - Código Classificação Tributária do IS - cClassTribIS
-    imposto_seletivo_cod_class_trib = str()
-    
-    #   - Valor da base de cálculo do IS - vBCIS
-    imposto_seletivo_valor_base_calculo  = Decimal()
-    
-    #   - Aliquota do IS - pIS
-    imposto_seletivo_aliquota_percentual = Decimal()
-    
-    #   - Valor do IS - vIS
-    imposto_seletivo_valor = Decimal()
+    # =============================================
+    # Reforma Tributaria - IVA Dual (NT 2025.002-RTC)
+    # =============================================
 
-    #  - Imposto sobre Bens e Serviços IBS e Contribuição sobre Bens e Serviços CBS - tag IBSCBS
-    #   - Código Situação Tributária - CST
-    ibs_cbs_modalidade = str()
-    
-    #   - Código Classificação Tributária - cCLassTrib
-    ibs_cbs_cod_class_trib = str()
-    
-    #   - Grupo IBS e CBS - gIBSCBS
-    #    - Base de cálculo IBS e CBS - vBC
-    ibs_cbs_valor_base_calculo = Decimal()
+    # IBSCBS group (Group UB)
+    ibscbs_cst = str()  # CST 3-digit (e.g. "000", "222")
+    ibscbs_c_class_trib = str()  # cClassTrib 6-digit classification code
+    ibscbs_vbc = Decimal()  # vBC - shared base de calculo for IBS + CBS
 
-    #    - Valor do IBS - vIBS
-    ibs_valor = Decimal()
+    # gIBSUF - IBS estadual (UF)
+    ibscbs_p_ibs_uf = Decimal()  # pIBSUF
+    ibscbs_v_ibs_uf = Decimal()  # vIBSUF
 
-    #   - Grupo IBS - UF - gIBSUF
-    #    - Aliquota IBS UF
-    ibs_uf_aliquota_percentual = Decimal()
+    # IBS estadual - gRed
+    ibscbs_ibs_uf_p_red_aliq = Decimal() # gRed - pRedAliq
+    ibscbs_ibs_uf_p_aliq_efet = Decimal() # gRed - pAliqEfet
+
+    # gIBSMun - IBS municipal
+    ibscbs_p_ibs_mun = Decimal()  # pIBSMun
+    ibscbs_v_ibs_mun = Decimal()  # vIBSMun
+
+    # IBS municipal - gRed
+    ibscbs_ibs_mun_p_red_aliq = Decimal() # gRed - pRedAliq
+    ibscbs_ibs_mun_p_aliq_efet = Decimal() # gRed - pAliqEfet
+
+    # vIBS total (UF + Mun)
+    ibscbs_v_ibs = Decimal()
+
+    # gCBS - CBS federal
+    ibscbs_p_cbs = Decimal()  # pCBS
+    ibscbs_v_cbs = Decimal()  # vCBS
     
-    #    - Valor IBS UF
-    ibs_uf_valor = Decimal()
+    # gCBS - gRed
+    ibscbs_cbs_p_red_aliq = Decimal() # gRed - pRedAliq
+    ibscbs_cbs_p_aliq_efet = Decimal() # gRed - pAliqEfet
 
-    #   - Grupo IBS - Municipal - gIBSMun
-    #    - Aliquota IBS Municipal
-    ibs_mun_aliquota_percentual = Decimal()
-    
-    #    - Valor IBS Municipal
-    ibs_mun_valor = Decimal()
-
-    #   - Grupo CBS - gCBS
-    #    - Aliquota CBS   
-    cbs_aliquota_percentual = Decimal()
-    
-    #    - Valor CBS 
-    cbs_valor = Decimal()
-
+    # IS (Imposto Seletivo) - Group UB-IS
+    is_cst_selec = str()  # CSTSelec (2-digit)
+    is_c_class_trib = str()  # cClassTribIS 6-digit
+    is_vbc = Decimal()  # vBC
+    is_aliquota = Decimal()  # pIS
+    is_valor = Decimal()  # vIS
 
     # - Informacoes Adicionais
     #  - Texto livre de informacoes adicionais
