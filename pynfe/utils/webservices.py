@@ -17,10 +17,10 @@ NFCE = {
         "URL": "http://www.nfce.sefin.ro.gov.br",
     },
     "AC": {
-        "QR": "sefaznet.ac.gov.br/nfce?",
+        "QR": "sefaznet.ac.gov.br/nfce/qrcode?",
         "URL": "sefaznet.ac.gov.br/nfce/consulta",
         "HTTPS": "http://www.",
-        "HOMOLOGACAO": "http://hml.",
+        "HOMOLOGACAO": "http://www.hml.",
     },
     "AM": {
         # csc_homologacao = '0123456789'
