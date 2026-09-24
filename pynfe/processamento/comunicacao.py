@@ -5,7 +5,7 @@ import re
 import requests
 
 from pynfe.entidades.certificado import CertificadoA1
-from pynfe.utils import etree, so_numeros
+from pynfe.utils import etree, normalizar_cnpj, so_numeros
 from pynfe.utils.flags import (
     CODIGOS_ESTADOS,
     MODELO_MDFE,
@@ -362,7 +362,7 @@ class ComunicacaoSefaz(Comunicacao):
         # Valores default
         ano = str(ano or datetime.date.today().year)[-2:]
         uf = CODIGOS_ESTADOS[self.uf.upper()]
-        cnpj = so_numeros(cnpj)
+        cnpj = normalizar_cnpj(cnpj)
 
         if len(cnpj) == 14:
             cnpjcpf_chaveacesso = cnpj
