@@ -1083,7 +1083,7 @@ class NotaFiscalProduto(Entidade):
     # gCBS - CBS federal
     ibscbs_p_cbs = Decimal()  # pCBS
     ibscbs_v_cbs = Decimal()  # vCBS
-
+    
     # gCBS - gRed
     ibscbs_cbs_p_red_aliq = Decimal() # gRed - pRedAliq
     ibscbs_cbs_p_aliq_efet = Decimal() # gRed - pAliqEfet

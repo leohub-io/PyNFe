@@ -1474,11 +1474,11 @@ Obs: esse DFe deverá ter o indAntecipacaoPgto marcado no grupo ide</xs:document
 						<xs:enumeration value="1"/>
 						<xs:enumeration value="2"/>
 					</xs:restriction>
-				</xs:simpleType>
+				</xs:simpleType>				
 			</xs:element>
 			<xs:element name="nProcSuframa" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>Número do processo na Suframa para o item
+					<xs:documentation>Número do processo na Suframa para o item 
 comercializado.</xs:documentation>
 				</xs:annotation>
 				<xs:simpleType>
@@ -1486,7 +1486,7 @@ comercializado.</xs:documentation>
 						<xs:minLength value="8"/>
 						<xs:maxLength value="12"/>
 					</xs:restriction>
-				</xs:simpleType>
+				</xs:simpleType>				
 			</xs:element>
 			<xs:element name="pAliqEfetRegCBS" type="TDec_0302_04RTC">
 				<xs:annotation>
