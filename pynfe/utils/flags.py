@@ -224,6 +224,8 @@ NF_FINALIDADES_EMISSAO = (
     (2, "NF-e complementar"),
     (3, "NF-e de ajuste"),
     (4, "NF-e de Devolução"),
+    (5, "NF-e de Débito"),
+    (6, "NF-e de Crédito"),
 )
 
 NF_REFERENCIADA_TIPOS = (
@@ -545,6 +547,47 @@ COFINS_TIPOS_TRIBUTACAO = (
 )
 
 COFINS_TIPOS_CALCULO = IPI_TIPOS_CALCULO
+
+# =============================================
+# Reforma Tributaria - IVA Dual (EC 132/2023)
+# =============================================
+
+# CST para IBSCBS (IBS + CBS) — NT 2025.002-RTC (3-digit codes)
+# Atualizado de acordo com Informe Técnico 2025.002 v.1.60 - Publicado em 23/06/2026
+IBS_CBS_TIPOS_TRIBUTACAO = (
+    ("000", "Tributação integral"),
+    ("010", "Tributação com alíquotas uniformes"),
+    ("011", "Tributação com alíquotas uniformes reduzidas"),
+    ("200", "Alíquota reduzida"),
+    ("220", "Alíquota fixa"),
+    ("221", "Alíquota fixa proporcional"),
+    ("222", "Redução de base de cálculo"),
+    ("400", "Isenção"),
+    ("410", "Imunidade e não incidência"),
+    ("510", "Diferimento"),
+    ("515", "Diferimento com redução de alíquota"),
+    ("550", "Suspensão"),
+    ("620", "Tributação monofásica"),
+    ("800", "Transferência de crédito"),
+    ("810", "Ajuste de IBS na ZFM"),
+    ("811", "Ajustes"),
+    ("820", "Tributação em documento específico"),
+    ("830", "Exclusão de base de cálculo"),
+)
+
+IBSCBS_CST_TRIBUTADOS = ("000", "010", "011", "200", "220", "221", "222", "510", "515", "550", "830")
+IBSCBS_CST_GRUPO_REDUCAO = ("011", "200", "515")
+
+# CST para IS (Imposto Seletivo) — CSTSelec (NT 2025.002-RTC)
+IS_TIPOS_TRIBUTACAO = (
+    ("01", "Tributada integralmente"),
+    ("02", "Tributada com redução"),
+    ("03", "Isenção"),
+    ("04", "Imunidade"),
+    ("05", "Suspensão"),
+    ("06", "Diferimento"),
+    ("90", "Outros"),
+)
 
 MODALIDADES_FRETE = (
     (0, "0 - Contratação por conta do Remetente (CIF)"),

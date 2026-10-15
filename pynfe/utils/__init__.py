@@ -2,6 +2,7 @@
 
 import codecs
 import os
+import re
 from unicodedata import normalize
 from signxml import XMLSigner
 from typing import Literal
@@ -27,6 +28,15 @@ def so_numeros(texto) -> str:
     :return: String somente com números
     """
     return "".join(filter(str.isdigit, str(texto)))
+
+
+_CNPJ_STRIP_PATTERN = re.compile(r"[.\-/ ]")
+
+
+def normalizar_cnpj(texto) -> str:
+    resultado = _CNPJ_STRIP_PATTERN.sub("", str(texto))
+
+    return resultado.upper()
 
 
 # @memoize
