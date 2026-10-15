@@ -497,6 +497,11 @@ class SerializacaoXML(Serializacao):
         if produto_servico.informacoes_adicionais:
             etree.SubElement(raiz, "infAdProd").text = produto_servico.informacoes_adicionais
 
+        # Total do item (vProd + vIBS + vCBS) - obrigatorio quando o grupo IBS/CBS
+        # estiver preenchido (Reforma Tributaria / NT 2025.002)
+        if produto_servico.ibscbs_vbc:
+            etree.SubElement(raiz, "vItem").text = "{:.2f}".format(produto_servico.vitem_valor)
+
         if retorna_string:
             return etree.tostring(raiz, encoding="unicode", pretty_print=True)
         else:
@@ -1935,7 +1940,7 @@ class SerializacaoXML(Serializacao):
                 etree.SubElement(g_ibs, "vCredPres").text = "0.00"
                 etree.SubElement(g_ibs, "vCredPresCondSus").text = "0.00"
 
-            # gCBS (optional — emit if any CBS value exists)
+            # gCBS (optional - emit if any CBS value exists)
             if nota_fiscal.totais_cbs:
                 g_cbs = etree.SubElement(ibscbs_tot, "gCBS")
                 etree.SubElement(g_cbs, "vDif").text = "0.00"
@@ -1943,6 +1948,14 @@ class SerializacaoXML(Serializacao):
                 etree.SubElement(g_cbs, "vCBS").text = "{:.2f}".format(nota_fiscal.totais_cbs)
                 etree.SubElement(g_cbs, "vCredPres").text = "0.00"
                 etree.SubElement(g_cbs, "vCredPresCondSus").text = "0.00"
+
+            # Total geral da NF-e (vNF + vIBS + vCBS) - obrigatorio quando o
+            # grupo IBS/CBS estiver preenchido (Reforma Tributaria / NT 2025.002).
+            # Sibling of IBSCBSTot inside <total>, not nested inside it.
+            etree.SubElement(total, "vNFTot").text = "{:.2f}".format(
+                nota_fiscal.totais_ibs_cbs_total_nota
+            )
+
 
             # gMono: not implemented yet (monofasia totals)
             # gEstornoCred: not implemented yet (estorno de credito totals)
