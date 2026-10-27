@@ -2341,8 +2341,8 @@ class SerializacaoQrcode(object):
             else:
                 qrcode = NFCE[uf]["HOMOLOGACAO"] + NFCE[uf]["QR"] + url
             url_chave = url_chave = NFCE[uf]["URL"]
-        # MG tem comportamento distintos para qrcode e url
-        elif uf == "MG":
+        # MG e GO têm comportamento distinto para qrcode e url
+        elif uf in ("MG", "GO"):
             qrcode = NFCE[uf]["QR"] + url
             if tpamb == "1":
                 qrcode = "https://nfeweb." + NFCE[uf]["QR"] + url
